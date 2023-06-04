@@ -14,9 +14,36 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('user_identifier',20)->nullable();
+            $table->date('birth_date');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('password_confirmation');
+            $table->string('phone_number')->unique();
+            $table->string('current_location');
+            $table->date('programming_age');
+            $table->enum('gender',['male','female']);
+            $table->text('bio')->nullable();
+            $table->string('image_path')->nullable();
+            $table->string('country')->nullable();
+
+            $table->foreignId('student_id')
+                ->nullable()
+                ->unique()
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreignId('expert_id')
+                ->nullable()
+                ->unique()
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
             $table->rememberToken();
             $table->timestamps();
         });
