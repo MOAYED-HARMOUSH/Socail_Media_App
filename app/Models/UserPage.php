@@ -9,8 +9,7 @@ class UserPage extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'page_id',
+    protected $guarded = [
+        'id'
     ];
 }

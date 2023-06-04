@@ -9,8 +9,7 @@ class SharePost extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'current_post',
-        'shared_post'
+    protected $guarded = [
+        'id'
     ];
 }

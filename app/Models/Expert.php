@@ -4,16 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Expert extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'companies',
-        'years_as_expert',
-        'work_at_company',
-        'start_year',
-        'section',
+    protected $guarded = [
+        'id'
     ];
+
+    public function user(): HasOne
+    {
+        return $this->hasOne('User');
+    }
 }

@@ -10,14 +10,8 @@ class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'likes_counts',
-        'dislikes_counts',
-        'user_id',
-        'post_id',
-        'content',
-        'reports_number',
-        'comment_id'
+    protected $guarded = [
+        'id'
     ];
 
     public function User(): BelongsTo

@@ -28,20 +28,6 @@ return new class extends Migration
             $table->string('image_path')->nullable();
             $table->string('country')->nullable();
 
-            $table->foreignId('student_id')
-                ->nullable()
-                ->unique()
-                ->constrained()
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
-
-            $table->foreignId('expert_id')
-                ->nullable()
-                ->unique()
-                ->constrained()
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
-
             $table->rememberToken();
             $table->timestamps();
         });

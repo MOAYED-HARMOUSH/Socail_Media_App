@@ -9,8 +9,7 @@ class FavoritePost extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'post_id',
-        'user_id',
+    protected $guarded = [
+        'id'
     ];
 }

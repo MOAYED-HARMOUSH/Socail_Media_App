@@ -9,10 +9,7 @@ class Invite extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'sender',
-        'receiver',
-        'page_id',
-        'is_approved'
+    protected $guarded = [
+        'id'
     ];
 }

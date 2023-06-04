@@ -9,8 +9,7 @@ class Photo extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'photo_path',
-        'post_id',
+    protected $guarded = [
+        'id'
     ];
 }

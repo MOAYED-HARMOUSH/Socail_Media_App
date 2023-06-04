@@ -18,6 +18,13 @@ return new class extends Migration
             $table->string('work_at_company')->nullable();
             $table->date('start_year')->nullable();
             $table->string('section')->nullable();
+
+            $table->foreignId('user_id')
+                ->unique()
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

@@ -9,9 +9,7 @@ class Friend extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'is_approved',
-        'sender',
-        'receiver',
+    protected $guarded = [
+        'id'
     ];
 }

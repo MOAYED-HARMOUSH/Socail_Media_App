@@ -9,8 +9,7 @@ class Video extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'video_path',
-        'post_id',
+    protected $guarded = [
+        'id'
     ];
 }

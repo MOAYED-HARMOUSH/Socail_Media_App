@@ -17,6 +17,13 @@ return new class extends Migration
             $table->integer('current_year')->unsigned();
             $table->string('section');
             $table->text('study_sequence')->nullable();
+
+            $table->foreignId('user_id')
+                ->unique()
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

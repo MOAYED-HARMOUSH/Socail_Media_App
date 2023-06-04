@@ -9,10 +9,7 @@ class Specialty extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'specialty',
-        'section',
-        'framework',
-        'language',
+    protected $guarded = [
+        'id'
     ];
 }
