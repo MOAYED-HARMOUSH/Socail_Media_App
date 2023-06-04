@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('specialties', function (Blueprint $table) {
             $table->id();
-            $table->string('Specialty');
-            $table->string('department');
+            $table->string('specialty');
+            $table->string('section');
             $table->json('framework')->nullable();
             $table->json('Language');
             $table->timestamps();

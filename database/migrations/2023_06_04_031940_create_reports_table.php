@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
-            $table->morphs('type');
+
+            $table->morphs('location');
+
             $table->timestamps();
         });
     }

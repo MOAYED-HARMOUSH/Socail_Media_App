@@ -16,19 +16,33 @@ return new class extends Migration
             $table->text('content');
 
             $table->foreignId('post_id')
-            ->constrained('posts')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
-            $table->bigInteger('reports_number')->default(0);
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
-            $table->foreignId('commenter_id')
-            ->constrained('users')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+            $table->foreignId('comment_id')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
 
-            $table->bigInteger('likes_counts')->nullable();
-            $table->bigInteger('dislikes_counts')->nullable();
+            $table->integer('reports_number')
+                ->default(0)
+                ->unsigned();
+
+            $table->bigInteger('likes_counts')
+                ->default(0)
+                ->unsigned();
+
+            $table->bigInteger('dislikes_counts')
+                ->default(0)
+                ->unsigned();
+
             $table->timestamps();
         });
     }

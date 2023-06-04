@@ -13,18 +13,21 @@ return new class extends Migration
     {
         Schema::create('pages', function (Blueprint $table) {
             $table->id();
-            $table->string('type');
+            $table->enum('type',['Company','Famous','Specialty']);
             $table->string('name');
-            $table->string('image_name');
-            $table->string('cover_image');
+            $table->string('image_path');
+            $table->string('cover_image_path');
             $table->text('bio')->nullable();
-            $table->integer('followers_number')->nullable();
             $table->string('email')->unique();
 
+            $table->bigInteger('follower_counts')
+                ->default(0)
+                ->unsigned();
+
             $table->foreignId('admin_id')
-            ->constrained('users')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+                ->constrained('users')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->timestamps();
         });

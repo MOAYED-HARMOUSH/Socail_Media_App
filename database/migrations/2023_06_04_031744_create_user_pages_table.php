@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('user_pages', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('page_id')
-            ->constrained('pages')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->foreignId('user_id')
-            ->constrained('users')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->timestamps();
         });

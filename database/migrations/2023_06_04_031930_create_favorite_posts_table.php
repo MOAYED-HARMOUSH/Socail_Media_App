@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('favorite_posts', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('user_id')
-            ->constrained('users')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->foreignId('post_id')
-            ->constrained('posts')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
-            
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

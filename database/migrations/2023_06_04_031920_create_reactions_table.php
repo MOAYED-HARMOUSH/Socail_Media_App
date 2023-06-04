@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('reactions', function (Blueprint $table) {
             $table->id();
+            $table->boolean('type');
+
             $table->morphs('location');
 
             $table->foreignId('user_id')
-            ->constrained('users')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
-            $table->boolean('type');
             $table->timestamps();
         });
     }

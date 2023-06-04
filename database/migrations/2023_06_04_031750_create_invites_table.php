@@ -13,22 +13,23 @@ return new class extends Migration
     {
         Schema::create('invites', function (Blueprint $table) {
             $table->id();
+            $table->boolean('is_approved')->nullable();
+
             $table->foreignId('sender_invite')
-            ->constrained('users')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+                ->constrained('users')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->foreignId('receiver_invite')
-            ->constrained('users')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+                ->constrained('users')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
-            $table->foreignId('page_invite_id')
-            ->constrained('pages')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+            $table->foreignId('page_id')
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
-            $table->boolean('is_approved')->nullable();
             $table->timestamps();
         });
     }
