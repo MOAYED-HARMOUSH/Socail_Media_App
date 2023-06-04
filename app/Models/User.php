@@ -6,6 +6,7 @@ namespace App\Models;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -62,5 +63,25 @@ class User extends Authenticatable
     public function expert(): HasOne
     {
         return $this->hasOne(Expert::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function pages(): HasMany
+    {
+        return $this->hasMany(Page::class,'admin_id');
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(Reaction::class);
     }
 }
