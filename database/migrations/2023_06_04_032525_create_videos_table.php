@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
-            $table->string('video_name');
+            $table->string('video_path');
 
             $table->foreignId('post_id')
-            ->constrained('posts')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->timestamps();
         });

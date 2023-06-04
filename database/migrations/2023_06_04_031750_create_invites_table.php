@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->boolean('is_approved')->nullable();
 
-            $table->foreignId('sender_invite')
+            $table->foreignId('sender')
                 ->constrained('users')
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
 
-            $table->foreignId('receiver_invite')
+            $table->foreignId('receiver')
                 ->constrained('users')
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();

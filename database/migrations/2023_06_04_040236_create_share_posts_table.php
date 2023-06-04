@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('share_posts', function (Blueprint $table) {
             $table->id();
+            
             $table->foreignId('current_post')
                 ->constrained('posts')
                 ->cascadeOnUpdate()

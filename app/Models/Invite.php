@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Invite extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'sender',
+        'receiver',
+        'page_id',
+        'is_approved'
+    ];
 }

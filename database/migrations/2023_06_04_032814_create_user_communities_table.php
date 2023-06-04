@@ -15,14 +15,14 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('user_id')
-            ->constrained('users')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
-            $table->foreignId('Community_id')
-            ->constrained('Communities')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
+            $table->foreignId('community_id')
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->timestamps();
         });
