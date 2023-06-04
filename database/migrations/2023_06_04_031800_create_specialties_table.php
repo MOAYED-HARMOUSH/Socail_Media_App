@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('specialty');
             $table->string('section');
             $table->json('framework')->nullable();
-            $table->json('Language');
+            $table->json('language');
             $table->timestamps();
         });
     }

@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Specialty extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'specialty',
+        'section',
+        'framework',
+        'language',
+    ];
 }
