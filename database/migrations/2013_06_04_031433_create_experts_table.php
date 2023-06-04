@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('experts', function (Blueprint $table) {
             $table->id();
-            $table->json('companies')->nullable();
-            $table->integer('years_as_expert');
+            $table->json('companies');
+            $table->integer('years_as_expert')->unsigned();
             $table->string('work_at_company')->nullable();
             $table->date('start_year')->nullable();
             $table->string('section')->nullable();

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->string('study_semester');
-            $table->string('current_year');
+            $table->enum('study_semester',['under graduate','Master','Phd']);
+            $table->integer('current_year')->unsigned();
             $table->string('section');
             $table->text('study_sequence')->nullable();
             $table->timestamps();
