@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -72,7 +73,7 @@ class User extends Authenticatable
 
     public function pages(): HasMany
     {
-        return $this->hasMany(Page::class,'admin_id');
+        return $this->hasMany(Page::class, 'admin_id');
     }
 
     public function posts(): HasMany
@@ -83,5 +84,31 @@ class User extends Authenticatable
     public function reactions(): HasMany
     {
         return $this->hasMany(Reaction::class);
+    }
+
+    public function favoritePosts(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class,'favorite_posts')
+            ->using(FavoritePost::class)
+            ->as('favorite');
+    }
+
+    public function communities(): BelongsToMany
+    {
+        return $this->belongsToMany(Community::class)
+            ->withTimestamps()
+            ->as('subscription');
+    }
+
+    public function memberPages(): BelongsToMany
+    {
+        return $this->belongsToMany(Page::class);
+    }
+
+    public function specialties(): BelongsToMany
+    {
+        return $this->belongsToMany(Specialty::class,'knowledge')
+            ->using(Knowledge::class)
+            ->as('know');
     }
 }

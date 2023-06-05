@@ -11,19 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_pages', function (Blueprint $table) {
+        Schema::create('community_user', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('page_id')
-                ->constrained()
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
 
             $table->foreignId('user_id')
                 ->constrained()
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
 
+            $table->foreignId('community_id')
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+            
             $table->timestamps();
         });
     }
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_pages');
+        Schema::dropIfExists('community_users');
     }
 };
