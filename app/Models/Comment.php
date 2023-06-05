@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Comment extends Model
 {
@@ -23,13 +24,13 @@ class Comment extends Model
     {
         return $this->belongsTo(Post::class);
     }
-    
-    public function reports()
+
+    public function reports(): MorphMany
     {
-        return $this->morphMany(Reports::class, 'type');
+        return $this->morphMany(Report::class, 'location');
     }
-    public function reactions()
+    public function reactions(): MorphMany
     {
-        return $this->morphMany(Reactions::class, 'location');
+        return $this->morphMany(Reaction::class, 'location');
     }
 }

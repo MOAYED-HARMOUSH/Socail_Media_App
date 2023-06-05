@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -48,5 +50,20 @@ class Post extends Model
         return $this->belongsToMany(User::class,'favorite_posts')
             ->using(FavoritePost::class)
             ->as('favorite');
+    }
+
+    public function location(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function reactions(): MorphMany
+    {
+        return $this->morphMany(Reaction::class,'location');
+    }
+
+    public function reports(): MorphMany
+    {
+        return $this->morphMany(Report::class,'location');
     }
 }

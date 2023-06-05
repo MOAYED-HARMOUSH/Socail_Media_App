@@ -7,6 +7,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -88,27 +89,92 @@ class User extends Authenticatable
 
     public function favoritePosts(): BelongsToMany
     {
-        return $this->belongsToMany(Post::class,'favorite_posts')
+        return $this->belongsToMany(Post::class, 'favorite_posts')
             ->using(FavoritePost::class)
-            ->as('favorite');
+            ->as('favorite')
+            ->withTimestamps();
     }
 
     public function communities(): BelongsToMany
     {
         return $this->belongsToMany(Community::class)
-            ->withTimestamps()
-            ->as('subscription');
+            ->as('subscription')
+            ->withTimestamps();
     }
 
     public function memberPages(): BelongsToMany
     {
-        return $this->belongsToMany(Page::class);
+        return $this->belongsToMany(Page::class)
+            ->as('member')
+            ->withTimestamps();
     }
 
     public function specialties(): BelongsToMany
     {
-        return $this->belongsToMany(Specialty::class,'knowledge')
+        return $this->belongsToMany(Specialty::class, 'knowledge')
             ->using(Knowledge::class)
-            ->as('know');
+            ->as('know')
+            ->withTimestamps();
+    }
+
+    public function locationPosts(): MorphMany
+    {
+        return $this->morphMany(Post::class, 'location');
+    }
+
+    public function senders(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'friends',
+            'receiver',
+            'sender'
+        )
+            ->using(Friend::class)
+            ->as('sender')
+            ->withPivot('is_approved')
+            ->withTimestamps();
+    }
+
+    public function receivers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'friends',
+            'sender',
+            'receiver'
+        )
+            ->using(Friend::class)
+            ->as('receiver')
+            ->withPivot('is_approved')
+            ->withTimestamps();
+    }
+
+    public function inviters(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'invites',
+            'receiver',
+            'sender'
+        )
+            ->using(Invite::class)
+            ->as('inviters')
+            ->withPivot('is_approved')
+            ->withTimestamps();
+    }
+
+    public function invitees(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'invites',
+            'sender',
+            'receiver'
+        )
+            ->using(Invite::class)
+            ->as('invitee')
+            ->withPivot('is_approved')
+            ->withTimestamps();
     }
 }
