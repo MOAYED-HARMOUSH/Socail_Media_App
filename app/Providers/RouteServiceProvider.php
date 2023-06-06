@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\Api\CommentController;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -35,6 +36,18 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
+
+            Route::name('auth.')
+                ->middleware('api')
+                ->controller('App\Http\Controllers\Api\AuthController')
+                ->prefix('api/auth')
+                ->group(base_path('routes/Api/auth.php'));
+
+            Route::name('comments.')
+                ->middleware(['api','auth:sanctum'])
+                ->controller(CommentController::class)
+                ->prefix('api/comments')
+                ->group(base_path('routes/Api/comments.php'));
         });
     }
 }

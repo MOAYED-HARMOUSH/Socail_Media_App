@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('specialties', function (Blueprint $table) {
             $table->id();
-            $table->string('specialty');
-            $table->string('section');
-            $table->json('framework')->nullable();
+            $table->enum('specialty',['AI', 'Software', 'Cyber_Security', 'Network']);
+            $table->set('section',['AI', 'Software', 'Cyber_Security', 'Network']);
+            $table->set('framework',['AI', 'Software', 'Cyber_Security', 'Network'])->nullable();
             $table->json('language');
             $table->timestamps();
         });
