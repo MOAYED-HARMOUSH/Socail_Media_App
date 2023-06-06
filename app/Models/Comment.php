@@ -29,6 +29,7 @@ class Comment extends Model
     {
         return $this->morphMany(Report::class, 'location');
     }
+    
     public function reactions(): MorphMany
     {
         return $this->morphMany(Reaction::class, 'location');
