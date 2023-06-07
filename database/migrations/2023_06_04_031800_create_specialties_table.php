@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,10 +12,58 @@ return new class extends Migration
     {
         Schema::create('specialties', function (Blueprint $table) {
             $table->id();
-            $table->enum('specialty',['AI', 'Software', 'Cyber_Security', 'Network']);
-            $table->set('section',['AI', 'Software', 'Cyber_Security', 'Network']);
-            $table->set('framework',['AI', 'Software', 'Cyber_Security', 'Network'])->nullable();
-            $table->json('language');
+            $table->enum('specialty', [
+                'AI',
+                'Software',
+                'Cyber_Security',
+                'Network'
+            ]);
+            $table->set('section', [
+                'Frontend',
+                'Backend',
+                'MobileDevelopment',
+                'FullStack',
+                'DBAnalysis',
+                'DevOps',
+                'GamesDevelopment',
+                'SoftwareAnalysis',
+                'QualityAssurance',
+                'CloudArchitecture',
+                'MachineLearning',
+                'DeepLearning',
+                'Robotics',
+                'NaturalLanguageProcessing',
+                'ExpertSystems',
+                'FuzzyLogic',
+                'ComputerVision',
+                'DataScientist',
+                'ArtificialGeneralIntelligence',
+                'NaturalNetwork',
+                'NetworkSecurity',
+                'CloudSecurity',
+                'EndPointSecurity',
+                'MobileSecurity',
+                'IoTSecurity',
+                'ApplicationSecurity',
+                'ZeroTrust',
+                'NetworkAdministrators',
+                'NetworkEngineer',
+                'NetworkAnalyst',
+                'SystemsAdministrators',
+                'NetworkTechnician',
+            ]);
+            $table->set('framework', [
+                'AI',
+                'Software',
+                'Cyber_Security',
+                'Network'
+            ])->nullable();
+            $table->set('language', [
+                'AI',
+                'Software',
+                'Cyber_Security',
+                'Network'
+            ]);
             $table->timestamps();
         });
     }

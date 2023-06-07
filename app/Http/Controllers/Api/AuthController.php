@@ -13,16 +13,14 @@ class AuthController extends Controller
     public function signUp(AuthRequest $request)
     {
         $request->validated();
-        // $user = User::create($request->all());
-        // $user->createToken('Sign up')->plainTextToken;
-        // var_dump($request->language);
+        $user = User::create($request->all());
+        $user->createToken('Sign up')->plainTextToken;
         return var_dump(Specialty::create([
             'specialty' => $request->specialty,
             'section' => $request->section,
             'framework' => $request->framework,
-            'language' => "[\"".$request->language[0]."\",\"".$request->language[0]."\"]"
+            'language' => $request->language
         ])->framework);
-        // return Specialty::query("INSERT INTO `specialties`(`id`, `specialty`, `section`, `framework`, `language`, `created_at`, `updated_at`) VALUES (4,,'AI,Network','{"ff":"dd"}','2023-06-05 18:49:45','2023-06-05 18:49:45')");
         // $user->save();
     }
 
