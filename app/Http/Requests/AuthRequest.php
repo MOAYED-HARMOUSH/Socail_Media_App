@@ -32,11 +32,11 @@ class AuthRequest extends FormRequest
             'password' => 'bail|required|confirmed|string|min:8',
             'image_path' => 'bail|nullable|image|mimes:jpg,bmp,png,svg,jpeg',
             'current_location' => 'bail|required|string',
-            // 'gender' => 'bail|required|string|in:male,female',
+            'gender' => 'bail|required|string|in:male,female',
             'birth_date' => "bail|date|before_or_equal:$date",
             'programming_age' => "bail|date|before_or_equal:$date",
             // 'specialty' => ['bail', 'required', Rule::in($specialty)],
-            // 'specialty' => 'bail|required|exists:specialties',
+            // 'specialty'=> 'bai l|required|exists:specialties',
             // 'section' => 'required'
         ];
     }
