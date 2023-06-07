@@ -23,8 +23,8 @@ class AuthRequest extends FormRequest
     public function rules(): array
     {
         $date = now()->subYears(12);
-        $specialty = ['AI', 'Software', 'Cyber Security', 'Network'];
-        $section = [];
+        // $specialty = ['AI', 'Software', 'Cyber Security', 'Network'];
+        // $section = [];
         return [
             // 'first_name' => 'bail|required|string|alpha',
             // 'last_name' => 'bail|required|string|alpha',
@@ -33,10 +33,10 @@ class AuthRequest extends FormRequest
             // 'image_path' => 'bail|nullable|image|mimes:jpg,bmp,png,svg,jpeg',
             // 'current_location' => 'bail|required|string',
             // 'gender' => 'bail|required|string|in:male,female',
-            'birth_date' => "bail|date|before_or_equal:$date",
-            'programming_age' => "bail|date|before_or_equal:$date",
+            'birth_date' => "bail|required|date|before_or_equal:$date",
+            'programming_age' => "bail|required|date|before_or_equal:$date",
             // 'specialty' => ['bail', 'required', Rule::in($specialty)],
-            // 'specialty'=> 'bai l|required|exists:specialties',
+            // 'specialty'=> 'bail|required|exists:specialties',
             // 'section' => 'required'
         ];
     }

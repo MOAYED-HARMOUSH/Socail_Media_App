@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Specialty extends Model
 {
@@ -14,10 +14,8 @@ class Specialty extends Model
         'id'
     ];
 
-    public function users(): BelongsToMany
+    public function users(): BelongsTo
     {
-        return $this->belongsToMany(User::class,'knowledge')
-            ->using(Knowledge::class)
-            ->as('know');
+        return $this->belongsTo(User::class);
     }
 }

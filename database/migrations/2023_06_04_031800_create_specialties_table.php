@@ -64,6 +64,13 @@ return new class extends Migration {
                 'Cyber_Security',
                 'Network'
             ]);
+
+            $table->foreignId('user_id')
+                ->unique()
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+
             $table->timestamps();
         });
     }
