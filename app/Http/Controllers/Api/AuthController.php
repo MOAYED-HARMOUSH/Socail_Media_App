@@ -12,7 +12,8 @@ class AuthController extends Controller
 {
     public function signUp(AuthRequest $request)
     {
-        $user = User::create($request->validated());
+        $request->validated();
+        $user = User::create($request->all());
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
         $user->specialty()->create($request->all());
         return response()->json([
@@ -56,11 +57,18 @@ class AuthController extends Controller
 
     public function logOut(Request $request)
     {
-        # code...
+        $request->user()->tokens()->delete();
+        return response()->json([
+            'Message' => 'Logged Out Successfully'
+        ]);
     }
 
     public function deleteAccount(Request $request)
     {
-        # code...
+        $this->logOut($request);
+        $request->user()->delete();
+        return response()->json([
+            'Message' => 'Signed Out Successfully'
+        ]);
     }
 }
