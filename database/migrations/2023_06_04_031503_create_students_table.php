@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->enum('study_semester',['under graduate','Master','Phd']);
+            $table->enum('study_semester',['under_graduate','graduated','Master','PhD']);
             $table->integer('current_year')->unsigned();
             $table->string('section');
             $table->text('study_sequence')->nullable();

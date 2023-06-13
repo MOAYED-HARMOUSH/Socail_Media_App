@@ -7,12 +7,12 @@ use Illuminate\Http\Request;
 use App\Http\Requests\AuthRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
     public function signUp(AuthRequest $request)
     {
-        $request->validated();
         $user = User::create($request->all());
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
         $user->specialty()->create($request->all());
@@ -32,13 +32,15 @@ class AuthController extends Controller
 
         if (!$user) {
             return response()->json([
-                'Message' => "this $request->email email doesn't Exist or Invalid , Please Make sure you Enter the right one or Sign up"
+                'Message' => "this $request->email email doesn't Exist or Invalid , Please Make sure you Enter the right one or Sign up",
+                'data' => []
             ]);
         }
 
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
-                'Message' => 'Password Incorrect Please Make sure you Enter the right one or Press Forget Password Button'
+                'Message' => 'Password Incorrect Please Make sure you Enter the right one or Press Forget Password Button',
+                'data' => []
             ]);
         }
 
@@ -70,5 +72,26 @@ class AuthController extends Controller
         return response()->json([
             'Message' => 'Signed Out Successfully'
         ]);
+    }
+
+    public function completeInfo(Request $request)
+    {
+        // $data = $request->validate([
+        //     'study_semester' => 'bail|required_with:current_year,section|in:PhD,Master,under_graduate',
+        //     'current_year' => 'bail|integer|min:5',
+        //     'section' => 'bail|required|string|alpha',
+        //     'study_sequence' => 'bail|nullable|string',
+        //     'years_as_expert' => 'bail|sometimes|gte:1',
+        //     'work_at_company'=>'bail|required_with:section,start_year|string',
+        //     'section'=>'bail|required_with:section,start_year|string'
+        // ]);
+
+        if ($request->has('study_semester'))
+            $request->user()->student()->create($request->all());
+
+        if ($request->has('companies'))
+            $request->user()->expert()->create($request->all());
+
+        return $request->user()->update($request->all());
     }
 }

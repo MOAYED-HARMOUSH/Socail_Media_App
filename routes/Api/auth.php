@@ -12,3 +12,5 @@ Route::post('logIn', 'logIn');
 Route::post('logOut','logOut')->middleware('auth:sanctum');
 
 Route::post('signOut','deleteAccount')->middleware('auth:sanctum');
+
+Route::post('completeInfo','completeInfo')->middleware('auth:sanctum');
