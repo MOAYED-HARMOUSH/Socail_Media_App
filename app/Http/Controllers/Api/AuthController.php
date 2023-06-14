@@ -76,16 +76,6 @@ class AuthController extends Controller
 
     public function completeInfo(Request $request)
     {
-        // $data = $request->validate([
-        //     'study_semester' => 'bail|required_with:current_year,section|in:PhD,Master,under_graduate',
-        //     'current_year' => 'bail|integer|min:5',
-        //     'section' => 'bail|required|string|alpha',
-        //     'study_sequence' => 'bail|nullable|string',
-        //     'years_as_expert' => 'bail|sometimes|gte:1',
-        //     'work_at_company'=>'bail|required_with:section,start_year|string',
-        //     'section'=>'bail|required_with:section,start_year|string'
-        // ]);
-
         if ($request->has('study_semester'))
             $request->user()->student()->create($request->all());
 
