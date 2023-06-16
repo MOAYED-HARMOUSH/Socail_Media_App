@@ -14,10 +14,22 @@ class AuthController extends Controller
     {
         $request->validated();
         $user = User::create($request->all());
+        $image=$request->image;
+        if($image !=null && $request->hasFile('image'))
+        {
+           $user->addMediaFromRequest('image')->toMediaCollection('avatars');
+           $avatar = $user->getFirstMedia('avatars');
+
+           $gitId = $avatar->id;
+$user->update([
+'media_id'=>   $gitId
+]);
+        }
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
         $user->specialty()->create($request->all());
         return response()->json([
-            'token' => $token
+            'token' => $token,
+            'user'=>$user
         ]);
     }
 

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('user_identifier',20)->nullable();
+            $table->string('user_identifier', 20)->nullable();
             $table->date('birth_date');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -23,10 +23,15 @@ return new class extends Migration
             $table->string('phone_number')->unique()->nullable();
             $table->string('current_location');
             $table->date('programming_age');
-            $table->enum('gender',['male','female'])->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
             $table->text('bio')->nullable();
-            $table->string('image_path')->nullable();
             $table->string('country')->nullable();
+
+            $table->foreignId('media_id')
+                ->nullable()
+                ->constrained('media')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->rememberToken();
             $table->timestamps();
