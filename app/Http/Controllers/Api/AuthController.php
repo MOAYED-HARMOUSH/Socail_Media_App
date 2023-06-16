@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\AuthRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -32,13 +33,18 @@ $user->update([
             'user'=>$user
         ]);
     }
+    public function getuser() // just test
+{
+    $user=Auth::user();
+    return  $user->getFirstMedia('avatars'); // work no propleme
+}
 
     public function logIn(Request $request)
     {
-        // $data = $request->validate([
-        //     'email' => 'bail|required|email',
-        //     'password' => 'bail|required|string|min:8'
-        // ]);
+        $data = $request->validate([
+            'email' => 'bail|required|email',
+            'password' => 'bail|required|string|min:8'
+        ]);
 
         $user = User::where('email', $request->email)->first();
 

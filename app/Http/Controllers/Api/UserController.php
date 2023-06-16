@@ -8,9 +8,5 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-public function getuser()
-{
-    $user=Auth::user();
-    return $user;
-}
+
 }
