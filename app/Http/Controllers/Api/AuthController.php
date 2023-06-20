@@ -13,7 +13,7 @@ class AuthController extends Controller
 {
     public function signUp(AuthRequest $request)
     {
-        $request->validated();
+        
         $user = User::create($request->all());
         $image=$request->image;
         if($image !=null && $request->hasFile('image'))
@@ -36,7 +36,7 @@ $user->update([
     public function getuser() // just test
 {
     $user=Auth::user();
-    return  $user->getFirstMedia('avatars'); // work no propleme
+    return  $user   ->getFirstMedia('avatars'); // work no propleme
 }
 
     public function logIn(Request $request)

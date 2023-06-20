@@ -43,8 +43,14 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api/auth')
                 ->group(base_path('routes/Api/auth.php'));
 
+            Route::name('posts.')
+                ->middleware(['api', 'auth:sanctum'])
+                ->controller('App\Http\Controllers\Api\PostController')
+                ->prefix('api/posts')
+                ->group(base_path('routes/Api/posts.php'));
+
             Route::name('comments.')
-                ->middleware(['api','auth:sanctum'])
+                ->middleware(['api', 'auth:sanctum'])
                 ->controller(CommentController::class)
                 ->prefix('api/comments')
                 ->group(base_path('routes/Api/comments.php'));

@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->id();
-            $table->string('photo_path');
+
+            $table->foreignId('media_id')
+                ->nullable()
+                ->constrained('media')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $table->foreignId('post_id')
                 ->constrained()
