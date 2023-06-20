@@ -53,18 +53,17 @@ return new class extends Migration {
                 'NetworkTechnician',
             ]);
             $table->set('framework', [
-                    'Flutter',
-                    'AngularJs',
-                    'ReactJs',
-                    'Laravel',
-                    'ReactNative',
-                    'Net',
-                    'jQuery',
-                    'Asp',
-                    'Django',
-                    'Xamarin',
-                    'BootStrap',
-
+                'Flutter',
+                'AngularJs',
+                'ReactJs',
+                'Laravel',
+                'ReactNative',
+                'Net',
+                'jQuery',
+                'Asp',
+                'Django',
+                'Xamarin',
+                'BootStrap',
             ])->nullable();
             $table->set('language', [
                 'Dart',

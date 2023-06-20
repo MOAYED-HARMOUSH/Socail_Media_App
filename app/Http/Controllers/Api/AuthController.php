@@ -2,27 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\AuthRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Requests\AuthRequest;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     public function signUp(AuthRequest $request)
     {
         $user = User::create($request->all());
-        $image = $request->image;
-        if ($image != null && $request->hasFile('image')) {
+        if ($request->hasFile('image')) {
             $user->addMediaFromRequest('image')->toMediaCollection('avatars');
-            $avatar = $user->getFirstMedia('avatars');
-
-            $gitId = $avatar->id;
-            $user->update([
-                'media_id' => $gitId
-            ]);
         }
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
         $user->specialty()->create($request->all());
@@ -31,15 +23,15 @@ class AuthController extends Controller
             'user' => $user
         ]);
     }
-    public function getuser() // just test
+
+    public function getAvatar(Request $request) //for Test Only
     {
-        $user = Auth::user();
-        return $user->getFirstMedia('avatars'); // work no propleme
+        return $request->user()->getFirstMedia('avatars');
     }
 
     public function logIn(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'email' => 'bail|required|email',
             'password' => 'bail|required|string|min:8'
         ]);
@@ -63,7 +55,8 @@ class AuthController extends Controller
         $token = $user->createToken('Log in', [''], now()->addYear())->plainTextToken;
 
         return response()->json([
-            'token' => $token
+            'token' => $token,
+            'data' => []
         ]);
     }
 

@@ -27,12 +27,6 @@ return new class extends Migration
             $table->text('bio')->nullable();
             $table->string('country')->nullable();
 
-            $table->foreignId('media_id')
-                ->nullable()
-                ->constrained('media')
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
-
             $table->rememberToken();
             $table->timestamps();
         });

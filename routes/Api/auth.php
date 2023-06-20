@@ -15,4 +15,4 @@ Route::post('signOut','deleteAccount')->middleware('auth:sanctum');
 
 Route::post('completeInfo','completeInfo')->middleware('auth:sanctum');
 
-Route::get('getuser', 'getuser')->middleware(['auth:sanctum']);
+Route::get('getAvatar', 'getAvatar')->middleware(['auth:sanctum']);
