@@ -2,46 +2,36 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\AuthRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Requests\AuthRequest;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     public function signUp(AuthRequest $request)
     {
-        
         $user = User::create($request->all());
-        $image=$request->image;
-        if($image !=null && $request->hasFile('image'))
-        {
-           $user->addMediaFromRequest('image')->toMediaCollection('avatars');
-           $avatar = $user->getFirstMedia('avatars');
-
-           $gitId = $avatar->id;
-$user->update([
-'media_id'=>   $gitId
-]);
+        if ($request->hasFile('image')) {
+            $user->addMediaFromRequest('image')->toMediaCollection('avatars');
         }
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
         $user->specialty()->create($request->all());
         return response()->json([
             'token' => $token,
-            'user'=>$user
+            'user' => $user
         ]);
     }
-    public function getuser() // just test
-{
-    $user=Auth::user();
-    return  $user   ->getFirstMedia('avatars'); // work no propleme
-}
+
+    public function getAvatar(Request $request) //for Test Only
+    {
+        return $request->user()->getFirstMedia('avatars');
+    }
 
     public function logIn(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'email' => 'bail|required|email',
             'password' => 'bail|required|string|min:8'
         ]);
@@ -50,20 +40,23 @@ $user->update([
 
         if (!$user) {
             return response()->json([
-                'Message' => "this $request->email email doesn't Exist or Invalid , Please Make sure you Enter the right one or Sign up"
+                'Message' => "this $request->email email doesn't Exist or Invalid , Please Make sure you Enter the right one or Sign up",
+                'data' => []
             ]);
         }
 
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
-                'Message' => 'Password Incorrect Please Make sure you Enter the right one or Press Forget Password Button'
+                'Message' => 'Password Incorrect Please Make sure you Enter the right one or Press Forget Password Button',
+                'data' => []
             ]);
         }
 
         $token = $user->createToken('Log in', [''], now()->addYear())->plainTextToken;
 
         return response()->json([
-            'token' => $token
+            'token' => $token,
+            'data' => []
         ]);
     }
 
@@ -88,5 +81,16 @@ $user->update([
         return response()->json([
             'Message' => 'Signed Out Successfully'
         ]);
+    }
+
+    public function completeInfo(Request $request)
+    {
+        if ($request->has('study_semester'))
+            $request->user()->student()->create($request->all());
+
+        if ($request->has('companies'))
+            $request->user()->expert()->create($request->all());
+
+        return $request->user()->update($request->all());
     }
 }
