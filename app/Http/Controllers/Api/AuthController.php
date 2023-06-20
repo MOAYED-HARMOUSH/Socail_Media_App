@@ -14,29 +14,28 @@ class AuthController extends Controller
     public function signUp(AuthRequest $request)
     {
         $user = User::create($request->all());
-        $image=$request->image;
-        if($image !=null && $request->hasFile('image'))
-        {
-           $user->addMediaFromRequest('image')->toMediaCollection('avatars');
-           $avatar = $user->getFirstMedia('avatars');
+        $image = $request->image;
+        if ($image != null && $request->hasFile('image')) {
+            $user->addMediaFromRequest('image')->toMediaCollection('avatars');
+            $avatar = $user->getFirstMedia('avatars');
 
-           $gitId = $avatar->id;
-$user->update([
-'media_id'=>   $gitId
-]);
+            $gitId = $avatar->id;
+            $user->update([
+                'media_id' => $gitId
+            ]);
         }
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
         $user->specialty()->create($request->all());
         return response()->json([
             'token' => $token,
-            'user'=>$user
+            'user' => $user
         ]);
     }
     public function getuser() // just test
-{
-    $user=Auth::user();
-    return  $user->getFirstMedia('avatars'); // work no propleme
-}
+    {
+        $user = Auth::user();
+        return $user->getFirstMedia('avatars'); // work no propleme
+    }
 
     public function logIn(Request $request)
     {
