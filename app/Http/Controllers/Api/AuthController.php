@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Http\Requests\AuthRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
