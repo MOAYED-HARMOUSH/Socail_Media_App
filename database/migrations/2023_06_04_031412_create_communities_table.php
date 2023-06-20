@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('communities', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('image_path');
-            $table->string('cover_image_path');
+            $table->string('image_path')->nullable();
+            $table->string('cover_image_path')->nullable();
 
             $table->bigInteger('subscriber_counts')
                 ->default(0)
