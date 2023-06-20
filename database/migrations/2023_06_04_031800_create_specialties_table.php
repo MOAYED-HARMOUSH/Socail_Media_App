@@ -53,16 +53,33 @@ return new class extends Migration {
                 'NetworkTechnician',
             ]);
             $table->set('framework', [
-                'AI',
-                'Software',
-                'Cyber_Security',
-                'Network'
+                    'Flutter',
+                    'AngularJs',
+                    'ReactJs',
+                    'Laravel',
+                    'ReactNative',
+                    'Net',
+                    'jQuery',
+                    'Asp',
+                    'Django',
+                    'Xamarin',
+                    'BootStrap',
+
             ])->nullable();
             $table->set('language', [
-                'AI',
-                'Software',
-                'Cyber_Security',
-                'Network'
+                'Dart',
+                'Php',
+                'Java',
+                'Cpp',
+                'Python',
+                'JavaScript',
+                'TypeScript',
+                'SQL',
+                'Kotlin',
+                'Swift',
+                'Rust',
+                'MatLab',
+                'Scala',
             ]);
 
             $table->foreignId('user_id')
