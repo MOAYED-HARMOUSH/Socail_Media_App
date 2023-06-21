@@ -12,4 +12,6 @@ class CommunityUser extends Model
     protected $guarded = [
         'id'
     ];
+
+    protected $table = 'community_user';
 }

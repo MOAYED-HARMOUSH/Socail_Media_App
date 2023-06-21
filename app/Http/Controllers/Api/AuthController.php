@@ -13,20 +13,21 @@ class AuthController extends Controller
     public function signUp(AuthRequest $request)
     {
         $user = User::create($request->all());
+
         if ($request->hasFile('image')) {
             $user->addMediaFromRequest('image')->toMediaCollection('avatars');
         }
+
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
+
         $user->specialty()->create($request->all());
+
+        CommunityController::addUserToCommunity($request,$user);
+
         return response()->json([
             'token' => $token,
             'user' => $user
         ]);
-    }
-
-    public function getAvatar(Request $request) //for Test Only
-    {
-        return $request->user()->getFirstMedia('avatars');
     }
 
     public function logIn(Request $request)
@@ -81,16 +82,5 @@ class AuthController extends Controller
         return response()->json([
             'Message' => 'Signed Out Successfully'
         ]);
-    }
-
-    public function completeInfo(Request $request)
-    {
-        if ($request->has('study_semester'))
-            $request->user()->student()->create($request->all());
-
-        if ($request->has('companies'))
-            $request->user()->expert()->create($request->all());
-
-        return $request->user()->update($request->all());
     }
 }

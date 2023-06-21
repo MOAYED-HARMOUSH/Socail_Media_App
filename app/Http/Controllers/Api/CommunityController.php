@@ -4,27 +4,32 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Community;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CommunityController extends Controller
 {
     /**
-     * Summary of create
+     * Summary of addUserToCommunity
      * @param \Illuminate\Http\Request $request
-     * @return mixed
+     * @param \App\Models\User $user
+     * @return void
      */
-    public function create(Request $request)
+    public static function addUserToCommunity(Request $request, User $user)
     {
-        return Community::create($request->all());
-    }
+        $communities_names = array_merge(
+            [$request->specialty],
+            explode(',', $request->section),
+            explode(',', $request->framework),
+            explode(',', $request->language)
+        );
+        $communities = Community::whereIn('name', $communities_names)->get();
+        $community_id = $communities->pluck('id')->toArray();
 
-    /**
-     * Summary of index
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function index(Request $request)
-    {
-        return Community::all();
+        $user->communities()->attach($community_id);
+
+        foreach ($communities as $value) {
+            $value->update(['subscriber_counts' => $value->subscriber_counts + 1]);
+        }
     }
 }
