@@ -37,7 +37,6 @@ class User extends Authenticatable implements HasMedia
         'bio',
         'image_path',
         'country',
-        'media_id'
     ];
 
     /**
