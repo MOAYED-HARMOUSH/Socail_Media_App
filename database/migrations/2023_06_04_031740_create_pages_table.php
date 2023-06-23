@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->enum('type',['Company','Famous','Specialty']);
             $table->string('name');
-            $table->string('image_path');
-            $table->string('cover_image_path');
+            $table->string('image_path')->nullable();
+            $table->string('cover_image_path')->nullable();
             $table->text('bio')->nullable();
             $table->string('email')->unique();
 
