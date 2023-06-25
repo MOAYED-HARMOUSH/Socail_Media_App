@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,9 +14,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class User extends Authenticatable implements HasMedia
+class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, InteractsWithMedia;
+    use HasApiTokens,
+        HasFactory,
+        Notifiable,
+        InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -126,12 +129,12 @@ class User extends Authenticatable implements HasMedia
         return $this->belongsToMany(
             User::class,
             'friends',
-            'receiver',
-            'sender'
+            'sender',
+            'receiver'
         )
             ->using(Friend::class)
             ->as('sender')
-            ->withPivot('is_approved')
+            ->withPivot(['is_approved','id'])
             ->withTimestamps();
     }
 
@@ -140,27 +143,27 @@ class User extends Authenticatable implements HasMedia
         return $this->belongsToMany(
             User::class,
             'friends',
-            'sender',
-            'receiver'
-        )
+            'receiver',
+            'sender'
+            )
             ->using(Friend::class)
             ->as('receiver')
-            ->withPivot('is_approved')
+            ->withPivot(['is_approved','id'])
             ->withTimestamps();
-    }
+        }
 
     public function inviters(): BelongsToMany
     {
-        return $this->belongsToMany(
-            User::class,
-            'invites',
-            'receiver',
-            'sender'
-        )
-            ->using(Invite::class)
-            ->as('inviters')
-            ->withPivot('is_approved')
-            ->withTimestamps();
+    return $this->belongsToMany(
+        User::class,
+        'invites',
+        'receiver',
+        'sender'
+    )
+        ->using(Invite::class)
+        ->as('inviters')
+        ->withPivot('is_approved')
+        ->withTimestamps();
     }
 
     public function invitees(): BelongsToMany
