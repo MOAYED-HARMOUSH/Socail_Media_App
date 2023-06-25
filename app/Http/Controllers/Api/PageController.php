@@ -2,55 +2,65 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Page;
-use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
 {
-    public function show(Request $request, $id)
+    public function index(Request $request)
     {
-        $user = Auth::user();
-        $user = User::find($user->id);
-        return $user->Page()->get();
-    }
+        $my_owned_pages = $request->user()->pages()->get();
 
-    public function create(Request $request, $id)
-    {
-        $user = Auth::user();
-        $fields = $request->validate([
-            'email' => 'bail|required|string',
-            'bio' => 'bail|required|string',
-            'cover_image' => 'bail|required|string',
-            'image_name' => 'bail|required|string',
-            'type' => 'bail|required|string',
-            'name' => 'bail|required|string',
-
-        ]);
-        return $page = Page::create([
-            'email' => $fields['email'],
-            'bio' => $fields['bio'],
-            'cover_image' => $fields['cover_image'],
-            'image_name' => $fields['image_name'],
-            'type' => $fields['type'],
-            'name' => $fields['name'],
-            'admin_id' => $user->id
-        ]);
-    }
-
-    public function destroy(Request $request, $id)
-    {
-        $user=Auth::user();
-        $user=User::find($user->id);
-        $del = Page::where('admin_id', $user->id)->where('id', $id)->first();
-        if (!$del) {
-            return 'donkey';
-        } else {
-            $del->delete();
-            return 'Page deleted successfully';
+        foreach ($my_owned_pages as $page) {
+            $page->getFirstMedia('cover_image');
+            $page->getFirstMedia('main_image');
         }
+
+        return response()->json([
+            'Message' => 'success',
+            'Pages' => $my_owned_pages,
+        ]);
+    }
+
+    public function create(Request $request)
+    {
+        // $request->validate([
+        //     'email' => 'bail|required|email',
+        //     'bio' => 'bail|required|string|max:100',
+        //     'cover_image' => 'bail|nullable|image|mimes:jpg,bmp,png,svg,jpeg',
+        //     'main_image' => 'bail|nullable|image|mimes:jpg,bmp,png,svg,jpeg',
+        //     'type' => 'bail|required|in:Company,Famous,Specialty',
+        //     'name' => 'bail|required|string',
+        // ]);
+
+        $page = $request->user()->pages()->create($request->all());
+
+        if ($request->hasFile('main_image')) {
+            $page->addMediaFromRequest('main_image')->toMediaCollection('main_image');
+        }
+
+        if ($request->hasFile('cover_image')) {
+            $page->addMediaFromRequest('cover_image')->toMediaCollection('cover_image');
+        }
+
+        return response()->json([
+            'Message' => 'success',
+            'page' => $page
+        ]);
+    }
+
+    public function show(Request $request)
+    {
+        //show the specific one with its posts
+    }
+
+    public function destroy(Request $request)
+    {
+        $request->user()->pages()->find($request->id)->delete();
+
+        return response()->json([
+            'Message' => 'success'
+        ]);
     }
 
     public function edit(Request $request, $id)

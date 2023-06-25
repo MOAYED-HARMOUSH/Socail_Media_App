@@ -93,7 +93,7 @@ class AuthRequest extends FormRequest
             // 'password' => 'bail|required|confirmed|string|min:8',
             // 'image' => 'bail|nullable|image|mimes:jpg,bmp,png,svg,jpeg',
             // 'current_location' => 'bail|required|string',
-            // 'gender' => 'bail|required|string|in:male,female',
+            // 'gender' => 'bail|required|in:male,female',
             'birth_date' => "bail|required|date|before_or_equal:$date",
             'programming_age' => "bail|required|date|before_or_equal:$date",
             // 'specialty' => ['bail', 'required', Rule::in($specialty)],

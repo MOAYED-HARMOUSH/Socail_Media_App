@@ -21,7 +21,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
 
-        event(new Registered($user));
+        // event(new Registered($user));
 
         $user->specialty()->create($request->all());
 
@@ -81,7 +81,11 @@ class AuthController extends Controller
     public function deleteAccount(Request $request)
     {
         $this->logOut($request);
-        $request->user()->delete();
+        $user = $request->user();
+
+        CommunityController::subSubscriberCounts($user);
+
+        $user->delete();
         return response()->json([
             'Message' => 'Signed Out Successfully'
         ]);
