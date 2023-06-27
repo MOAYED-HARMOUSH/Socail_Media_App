@@ -32,10 +32,10 @@ class AuthController extends Controller
 
     public function logIn(Request $request)
     {
-        $request->validate([
-            'email' => 'bail|required|email',
-            'password' => 'bail|required|string|min:8'
-        ]);
+        // $request->validate([
+        //     'email' => 'bail|required|email',
+        //     'password' => 'bail|required|string|min:8'
+        // ]);
 
         $user = User::where('email', $request->email)->first();
 
