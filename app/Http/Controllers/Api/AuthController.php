@@ -42,14 +42,14 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json([
                 'Message' => "this $request->email email doesn't Exist or Invalid , Please Make sure you Enter the right one or Sign up",
-                'data' => []
+                'user' => []
             ]);
         }
 
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
                 'Message' => 'Password Incorrect Please Make sure you Enter the right one or Press Forget Password Button',
-                'data' => []
+                'user' => []
             ]);
         }
 
@@ -57,7 +57,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'data' => []
+            'user' => $user
         ]);
     }
 
