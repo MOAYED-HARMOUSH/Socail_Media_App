@@ -83,4 +83,8 @@ class AuthController extends Controller
             'Message' => 'Signed Out Successfully'
         ]);
     }
+    public function getallusers()
+    {
+        return User::all();
+    }
 }

@@ -122,7 +122,7 @@ class PostController extends Controller
 
         $post_time =  $post = $user->posts()->where('id', $id)->first()->created_at;
 
-        $old_datetime = Carbon::parse($post_time)->subHours(48)->format('Y-m-d H:i');
+        $old_datetime = Carbon::parse($post_time)->format('Y-m-d H:i');
         $day_name = date('l', strtotime($post_time));
 
         $now = Carbon::now();
@@ -131,9 +131,10 @@ class PostController extends Controller
         if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 48) {
             $diff = 'yestarday at : ' . Carbon::parse($post_time)->format(' h:i A');
         } else if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 168) {
-            $diff = $day_name . 'at' .  Carbon::parse($post_time)->format(' h:i A');
+            $diff = $day_name . ' at :' .  Carbon::parse($post_time)->format(' h:i A');
         } else if ($now->diffInHours($old_datetime) > 24) {
-            $diff = Carbon::parse($post_time)->format('Y-m-d h:i A');
+            $diff = Carbon::parse($old_datetime)->format('Y-m-d h:i A');
+
         } else if ($now->diffInMinutes($old_datetime) < 60) {
             $diff = $now->diffInMinutes($old_datetime) . ' minutes ago';
         } else {

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class FriendController extends Controller
 {
-    public function create(Request $request, $id)
+    public function sendRequest($id)
     {
         $user = Auth::user();
         $user = User::find($user->id);
