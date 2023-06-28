@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\FriendController;
+use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -39,19 +42,18 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::name('auth.')
                 ->middleware('api')
-                ->controller('App\Http\Controllers\Api\AuthController')
                 ->prefix('api/auth')
                 ->group(base_path('routes/Api/auth.php'));
 
             Route::name('users.')
                 ->middleware(['api', 'auth:sanctum'])
-                ->controller('App\Http\Controllers\Api\UserController')
+                ->controller(UserController::class)
                 ->prefix('api/users')
                 ->group(base_path('routes/Api/users.php'));
 
             Route::name('posts.')
                 ->middleware(['api', 'auth:sanctum'])
-                ->controller('App\Http\Controllers\Api\PostController')
+                ->controller(PostController::class)
                 ->prefix('api/posts')
                 ->group(base_path('routes/Api/posts.php'));
 
@@ -66,6 +68,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->controller(CommentController::class)
                 ->prefix('api/comments')
                 ->group(base_path('routes/Api/comments.php'));
+
+            Route::name('friends.')
+                ->middleware(['api', 'auth:sanctum'])
+                ->controller(FriendController::class)
+                ->prefix('api/friends')
+                ->group(base_path('routes/Api/friends.php'));
         });
     }
 }

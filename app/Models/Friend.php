@@ -13,16 +13,14 @@ class Friend extends Pivot
     protected $guarded = [
         'id'
     ];
-    public function User_sender():BelongsTo
+
+    public function senders()
     {
-
-        return $this->belongsTo(User::class, 'sender',);
-
+        return $this->belongsTo(User::class,'sender');
     }
-    public function User_reciever():BelongsTo
+
+    public function receivers()
     {
-
-        return $this->belongsTo(User::class, 'reciever',);
-
+        return $this->belongsTo(User::class,'receiver');
     }
 }
