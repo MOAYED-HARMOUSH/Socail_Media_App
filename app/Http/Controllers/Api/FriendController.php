@@ -19,7 +19,7 @@ class FriendController extends Controller
     public function accept(Request $request)
     {
         $request->user()->receivers()
-            ->where('friends.id', $request->id)
+            ->where('friends.sender', $request->id)
             ->update(['is_approved' => true]);
 
         //Send Notification to Sender
@@ -30,9 +30,9 @@ class FriendController extends Controller
     public function reject(Request $request)
     {
         $request->user()->receivers()
-            ->where('friends.id', $request->id)
+            ->where('friends.sender', $request->id)
             ->update(['is_approved' => false]);
-        
+
         return response()->json(['Message' => 'Success']);
     }
 
