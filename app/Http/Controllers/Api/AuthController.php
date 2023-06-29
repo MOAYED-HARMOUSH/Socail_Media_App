@@ -21,7 +21,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
 
-        //event(new Registered($user));
+        event(new Registered($user)); //2
 
         $user->specialty()->create($request->all());
 
