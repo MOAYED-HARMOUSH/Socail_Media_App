@@ -32,9 +32,7 @@ class FriendController extends Controller
         $request->user()->receivers()
             ->where('friends.id', $request->id)
             ->update(['is_approved' => false]);
-
-        //Send Notification to Sender
-
+        
         return response()->json(['Message' => 'Success']);
     }
 
