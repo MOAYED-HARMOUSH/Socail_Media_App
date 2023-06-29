@@ -18,11 +18,11 @@ class FavoritePostController extends Controller
 
     public function show(Request $request)
     {
-        $saved_posts=$request->user()->favoritePosts()->get();
+        $saved_posts = $request->user()->favoritePosts()->get();
 
         return response()->json([
             'Message' => 'success',
-            'saved posts'=>$saved_posts
+            'saved posts' => $saved_posts
         ]);
     }
 
