@@ -21,7 +21,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
 
-        // event(new Registered($user));
+        //event(new Registered($user));
 
         $user->specialty()->create($request->all());
 
@@ -35,24 +35,24 @@ class AuthController extends Controller
 
     public function logIn(Request $request)
     {
-        $request->validate([
-            'email' => 'bail|required|email',
-            'password' => 'bail|required|string|min:8'
-        ]);
+        // $request->validate([
+        //     'email' => 'bail|required|email',
+        //     'password' => 'bail|required|string|min:8'
+        // ]);
 
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json([
                 'Message' => "this $request->email email doesn't Exist or Invalid , Please Make sure you Enter the right one or Sign up",
-                'data' => []
+                'user' => []
             ]);
         }
 
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
                 'Message' => 'Password Incorrect Please Make sure you Enter the right one or Press Forget Password Button',
-                'data' => []
+                'user' => []
             ]);
         }
 
@@ -60,7 +60,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'data' => []
+            'user' => $user
         ]);
     }
 
