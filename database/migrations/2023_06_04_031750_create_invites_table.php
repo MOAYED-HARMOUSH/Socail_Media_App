@@ -30,6 +30,8 @@ return new class extends Migration
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
 
+            $table->unique(['sender','receiver','page_id']);
+
             $table->timestamps();
         });
     }

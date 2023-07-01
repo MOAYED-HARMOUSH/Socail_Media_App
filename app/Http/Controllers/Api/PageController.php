@@ -51,7 +51,7 @@ class PageController extends Controller
 
     public function show(Request $request)
     {
-        //show the specific one with its posts
+        //show the specific one with its posts and its contents
     }
 
     public function destroy(Request $request)
@@ -63,7 +63,7 @@ class PageController extends Controller
         ]);
     }
 
-    public function edit(Request $request, $id)
+    public function edit(Request $request)
     {
         //
     }

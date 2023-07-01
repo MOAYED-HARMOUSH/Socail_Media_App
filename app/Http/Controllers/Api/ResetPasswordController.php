@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Models\ResetPassword;
 use App\Mail\ResetPasswordCode;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -29,7 +28,7 @@ class ResetPasswordController extends Controller
         Password::createToken($user);
         Password::sendResetLink($request->only('email'));*/
 
-        $data['token'] = mt_rand(100000, 999999);
+        $data['token'] = mt_rand(1000, 9999);
 
         $data['created_at'] = now();
 
