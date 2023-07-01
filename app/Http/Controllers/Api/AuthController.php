@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\AuthRequest;
 use App\Http\Controllers\Controller;
+use App\Models\Expert;
+use App\Models\Student;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 
@@ -92,6 +94,16 @@ class AuthController extends Controller
     }
     public function getallusers()
     {
-        return User::all();
+       $u=  $users= User::all();
+       $u_id=  $users= User::pluck('id');
+       for($i=0;$i<$users->count();$i++)
+       {
+        $user=User::where('id',$i)->get();
+        
+ $student=Student::whereIn('user_id',$u_id)->get();
+ $expert=Expert::whereIn('user_id',$u_id)->get();
+       }
+return array_merge([$u],[$student],[$expert]);
+//return array_merge($u,$r,$e);
     }
 }

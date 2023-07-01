@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\FavoritePostController;
 use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Controller;
 // use App\Http\Controllers\Api\UserController;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
