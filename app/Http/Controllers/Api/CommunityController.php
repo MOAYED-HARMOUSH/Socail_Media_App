@@ -24,13 +24,22 @@ class CommunityController extends Controller
             explode(',', $request->framework),
             explode(',', $request->language)
         );
+        $communities_names = array_map(fn($element) => $element . ' Space', $communities_names);
+
         $communities = Community::whereIn('name', $communities_names)->get();
         $community_id = $communities->pluck('id')->toArray();
 
         $user->communities()->attach($community_id);
 
-        foreach ($communities as $value) {
-            $value->update(['subscriber_counts' => $value->subscriber_counts + 1]);
+        foreach ($communities as $community) {
+            $community->update(['subscriber_counts' => $community->subscriber_counts + 1]);
         }
+    }
+
+    public static function subSubscriberCounts(User $user)
+    {
+        $communities = $user->communities()->get();
+        foreach ($communities as $community)
+            $community->update(['subscriber_counts' => $community->subscriber_counts - 1]);
     }
 }

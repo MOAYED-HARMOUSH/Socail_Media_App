@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\FavoritePostController;
 use App\Http\Controllers\Api\FriendController;
+use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\PostController;
-use App\Http\Controllers\Api\UserController;
+// use App\Http\Controllers\Api\UserController;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -57,11 +59,11 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api/posts')
                 ->group(base_path('routes/Api/posts.php'));
 
-                Route::name('friends.')
+            Route::name('posts.saves')
                 ->middleware(['api', 'auth:sanctum'])
-                ->controller('App\Http\Controllers\Api\FriendController')
-                ->prefix('api/friends')
-                ->group(base_path('routes/Api/friends.php'));
+                ->controller(FavoritePostController::class)
+                ->prefix('api/posts/saves')
+                ->group(base_path('routes/Api/saves.posts.php'));
 
             Route::name('comments.')
                 ->middleware(['api', 'auth:sanctum'])
@@ -74,6 +76,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->controller(FriendController::class)
                 ->prefix('api/friends')
                 ->group(base_path('routes/Api/friends.php'));
-        });
+            });
+
+            Route::name('pages.')
+                ->middleware(['api', 'auth:sanctum'])
+                ->controller(PageController::class)
+                ->prefix('api/pages')
+                ->group(base_path('routes/Api/pages.php'));
     }
 }

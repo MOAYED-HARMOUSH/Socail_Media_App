@@ -2,31 +2,36 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\FavoritePost;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class FavoritePostController extends Controller
 {
-    public function create(Request $request, $id)
+    public function create(Request $request)
     {
-        $user = Auth::user();
-        return FavoritePost::create([
-            'user_id' => $user->id,
-            'post_id' => $id
+        $request->user()->favoritePosts()->attach($request->id);
+
+        return response()->json([
+            'Message' => 'success'
         ]);
     }
 
     public function show(Request $request)
     {
-        $user=Auth::user();
-        return  FavoritePost::where('user_id',$user->id)->get();
+        $saved_posts = $request->user()->favoritePosts()->get();
+
+        return response()->json([
+            'Message' => 'success',
+            'saved posts' => $saved_posts
+        ]);
     }
 
-    public function destroy(Request $request,$id)
+    public function destroy(Request $request)
     {
-        $user=Auth::user();
-        return  FavoritePost::where('user_id',$user->id)->where('post_id',$id)->delete();
+        $request->user()->favoritePosts()->detach($request->id);
+
+        return response()->json([
+            'Message' => 'success'
+        ]);
     }
 }

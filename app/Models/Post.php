@@ -51,7 +51,8 @@ class Post extends Model implements HasMedia
     {
         return $this->belongsToMany(User::class,'favorite_posts')
             ->using(FavoritePost::class)
-            ->as('favorite');
+            ->as('favorite')
+            ->withTimestamps();
     }
 
     public function location(): MorphTo

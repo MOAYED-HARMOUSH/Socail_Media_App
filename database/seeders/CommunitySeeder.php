@@ -77,9 +77,9 @@ class CommunitySeeder extends Seeder
         ];
         for ($i = 0; $i < 60; $i++) {
             DB::table('communities')->insert([
-                'name' => $name[$i],
-                'created_at'=>now(),
-                'updated_at'=>now()
+                'name' => $name[$i] . ' Space',
+                'created_at' => now(),
+                'updated_at' => now()
             ]);
         }
     }
