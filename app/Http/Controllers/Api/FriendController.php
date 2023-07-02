@@ -49,8 +49,10 @@ class FriendController extends Controller
     public function reject(Request $request)
     {
         $request->user()->receivers()
-            ->where('friends.sender', $request->id)
+            ->where('friends.id', $request->id)
             ->update(['is_approved' => false]);
+
+        //Send Notification to Sender
 
         return response()->json(['Message' => 'Success']);
     }
