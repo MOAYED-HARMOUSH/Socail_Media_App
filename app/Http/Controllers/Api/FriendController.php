@@ -9,11 +9,30 @@ class FriendController extends Controller
 {
     public function send(Request $request)
     {
-        $request->user()->senders()->attach($request->id);
+        $received = $request->user()->receivers()->where('friends.sender', $request->id)->get();
+
+        if ($received == null)
+            $request->user()->senders()->attach($request->id);
+        else
+            return response()->json([
+                'Message' => 'You have request from this user'
+            ]);
 
         //Send Notification to Receiver
 
         return response()->json(['Message' => 'Success']);
+    }
+
+    public function cancel(Request $request)
+    {
+        $request->user()->senders()
+            ->where('friends.receiver', $request->id)
+            ->whereNull('friends.is_approved')
+            ->detach($request->id);
+
+        return response()->json([
+            'Message' => 'success'
+        ]);
     }
 
     public function accept(Request $request)
@@ -38,7 +57,7 @@ class FriendController extends Controller
 
     public function showRejectedRequests(Request $request)
     {
-        $rejected_request = $request->user()->senders()->where('friends.is_approved',false)->get();
+        $rejected_request = $request->user()->senders()->where('friends.is_approved', false)->get();
 
         return response()->json([
             'Message' => 'success',
@@ -53,9 +72,14 @@ class FriendController extends Controller
 
         $friends = $received_friends->concat($sent_friends);
 
+        return $friends;
+    }
+
+    public function returnFriends(Request $request)
+    {
         return response()->json([
             'Message' => 'Success',
-            'friends' => $friends
+            'friends' => $this->showFriends($request)
         ]);
     }
 

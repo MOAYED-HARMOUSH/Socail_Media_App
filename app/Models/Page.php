@@ -38,4 +38,10 @@ class Page extends Model implements HasMedia
     {
         return $this->hasMany(Invite::class);
     }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('main_image')->singleFile();
+        $this->addMediaCollection('cover_image')->singleFile();
+    }
 }

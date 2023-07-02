@@ -85,6 +85,8 @@ class AuthController extends Controller
 
         CommunityController::subSubscriberCounts($user);
 
+        PageController::subMemberCounts($user);
+
         $user->delete();
         return response()->json([
             'Message' => 'Signed Out Successfully'

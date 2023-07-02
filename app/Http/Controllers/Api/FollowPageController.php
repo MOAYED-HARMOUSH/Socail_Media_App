@@ -4,57 +4,34 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Page;
 use App\Models\User;
-use App\Models\PageUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class FollowPageController extends Controller
 {
-    public function create(Request $request, $id)
+    public static function follow(Request $request)
     {
-        $user = Auth::user();
+        $request->user()->memberPages()->attach($request->id);
 
-        $testifadmin = Page::where('admin_id', $user->id)->pluck('id');
-        foreach ($testifadmin as $key => $value) {
-            if ($id == $value)
-                return 'admin of the page cant follow ';
-        }
+        $page = Page::find($request->id);
+        $page->update(['follower_counts' => $page->follower_counts + 1]);
 
-        $testid = Page::where('id', $id)->value('id');
-        if (!$testid) {
-            return 'undefind';
-        } else {
-            $test = PageUser::where('user_id', $user->id)->where('page_id', $id)->value('id');
-            if (!$test) {
-                PageUser::create([
-                    'user_id' => $user->id,
-                    'page_id' => $id
-                ]);
-                return 'followed';
-            } else return 'already followed';
-        }
+        return response()->json([
+            'Message' => 'success'
+        ]);
     }
 
-    public function delete(Request $request,$id)
+    public function unfollow(Request $request)
     {
-        $user = Auth::user();
+        $request->user()->memberPages()->where('id', $request->id)->detach($request->id);
 
-        $testifadmin2 = Page::where('admin_id', $user->id)->pluck('id');
-        foreach ($testifadmin2 as $key => $value) {
-            if ($id == $value)
-                return 'admin of the page cant not follow ';
-        }
-        $testid = Page::where('id', $id)->value('id');
-        if (!$testid) {
-            return 'undefind';
-        } else {
-            $test = PageUser::where('user_id', $user->id)->where('page_id', $id)->value('id');
-            if ($test) {
-                $ww = PageUser::where('user_id', $user->id)->where('page_id', $id)->delete();
-                return 'not followed';
-            } else return 'already not followed';
-        }
+        $page = Page::find($request->id);
+        $page->update(['follower_counts' => $page->follower_counts - 1]);
+
+        return response()->json([
+            'Message' => 'success'
+        ]);
     }
 
     public function show()

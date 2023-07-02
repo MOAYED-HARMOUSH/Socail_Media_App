@@ -157,8 +157,8 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     return $this->belongsToMany(
         User::class,
         'invites',
-        'receiver',
-        'sender'
+        'sender',
+        'receiver'
     )
         ->using(Invite::class)
         ->as('inviters')
@@ -171,8 +171,8 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         return $this->belongsToMany(
             User::class,
             'invites',
-            'sender',
-            'receiver'
+            'receiver',
+            'sender'
         )
             ->using(Invite::class)
             ->as('invitee')

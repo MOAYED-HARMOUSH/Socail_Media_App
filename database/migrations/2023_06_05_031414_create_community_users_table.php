@@ -23,7 +23,9 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
-            
+
+            $table->unique(['user_id','community_id']);
+
             $table->timestamps();
         });
     }
