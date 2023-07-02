@@ -18,7 +18,6 @@ class CommunityController extends Controller
     public static function addUserToCommunity(Request $request, User $user)
     {
         $communities_names = array_merge(
-
             [$request->specialty],
             explode(',', $request->section),
             explode(',', $request->framework),
