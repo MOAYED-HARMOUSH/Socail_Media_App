@@ -126,10 +126,15 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
 
     public function senders(): BelongsToMany
     {
-        return $this->belongsToMany(User::class,'friends','sender','receiver')
+        return $this->belongsToMany(
+            User::class,
+            'friends',
+            'sender',
+            'receiver'
+        )
             ->using(Friend::class)
             ->as('sender')
-            ->withPivot(['is_approved','id'])
+            ->withPivot(['is_approved', 'id'])
             ->withTimestamps();
     }
 
@@ -140,25 +145,25 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
             'friends',
             'receiver',
             'sender'
-            )
+        )
             ->using(Friend::class)
             ->as('receiver')
-            ->withPivot(['is_approved','id'])
+            ->withPivot(['is_approved', 'id'])
             ->withTimestamps();
-        }
+    }
 
     public function inviters(): BelongsToMany
     {
-    return $this->belongsToMany(
-        User::class,
-        'invites',
-        'receiver',
-        'sender'
-    )
-        ->using(Invite::class)
-        ->as('inviters')
-        ->withPivot('is_approved')
-        ->withTimestamps();
+        return $this->belongsToMany(
+            User::class,
+            'invites',
+            'sender',
+            'receiver'
+        )
+            ->using(Invite::class)
+            ->as('inviters')
+            ->withPivot('is_approved')
+            ->withTimestamps();
     }
 
     public function invitees(): BelongsToMany
@@ -166,8 +171,8 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
         return $this->belongsToMany(
             User::class,
             'invites',
-            'sender',
-            'receiver'
+            'receiver',
+            'sender'
         )
             ->using(Invite::class)
             ->as('invitee')
