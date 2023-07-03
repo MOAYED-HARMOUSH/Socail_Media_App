@@ -10,6 +10,7 @@ use App\Models\Expert;
 use App\Models\Student;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -94,16 +95,15 @@ class AuthController extends Controller
     }
     public function getallusers()
     {
-       $u=  $users= User::all();
-       $u_id=  $users= User::pluck('id');
-       for($i=0;$i<$users->count();$i++)
-       {
-        $user=User::where('id',$i)->get();
-        
- $student=Student::whereIn('user_id',$u_id)->get();
- $expert=Expert::whereIn('user_id',$u_id)->get();
-       }
-return array_merge([$u],[$student],[$expert]);
-//return array_merge($u,$r,$e);
+        $u =  $users = User::all();
+        $u_id =  $users = User::pluck('id');
+        for ($i = 0; $i < $users->count(); $i++) {
+            $user = User::where('id', $i)->get();
+
+            $student = Student::whereIn('user_id', $u_id)->get();
+            $expert = Expert::whereIn('user_id', $u_id)->get();
+        }
+        return array_merge([$u], [$student], [$expert]);
+        //return array_merge($u,$r,$e);
     }
 }

@@ -56,7 +56,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/Api/users.php'));
 
             Route::name('posts.')
-                ->middleware(['api', 'auth:sanctum'])
+                ->middleware(['api'])
                 ->controller(PostController::class)
                 ->prefix('api/posts')
                 ->group(base_path('routes/Api/posts.php'));

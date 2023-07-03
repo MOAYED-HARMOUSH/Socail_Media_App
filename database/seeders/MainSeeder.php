@@ -1,0 +1,195 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Community;
+use Database\Factories\UserFactory;
+
+class MainSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function ge()
+    {
+
+
+        $language = [
+            'Dart',
+            'Php',
+            'Java',
+            'Cpp',
+            'Python',
+            'JavaScript',
+            'TypeScript',
+            'SQL',
+            'Kotlin',
+            'Swift',
+            'Rust',
+            'MatLab',
+            'Scala',
+        ];
+        $randomIndex = array_rand($language);
+        return  $randomLanguage = $language[$randomIndex];
+    }
+    public function ge2()
+    {
+
+
+        $section = [
+            'Frontend',
+            'Backend',
+            'MobileDevelopment',
+            'FullStack',
+            'DBAnalysis',
+            'DevOps',
+            'GamesDevelopment',
+            'SoftwareAnalysis',
+            'QualityAssurance',
+            'CloudArchitecture',
+            'MachineLearning',
+            'DeepLearning',
+            'Robotics',
+            'NaturalLanguageProcessing',
+            'ExpertSystems',
+            'FuzzyLogic',
+            'ComputerVision',
+            'DataScientist',
+            'ArtificialGeneralIntelligence',
+            'NaturalNetwork',
+            'NetworkSecurity',
+            'CloudSecurity',
+            'EndPointSecurity',
+            'MobileSecurity',
+            'IoTSecurity',
+            'ApplicationSecurity',
+            'ZeroTrust',
+            'NetworkAdministrators',
+            'NetworkEngineer',
+            'NetworkAnalyst',
+            'SystemsAdministrators',
+            'NetworkTechnician',
+        ];
+
+
+        $randomIndex2 = array_rand($section);
+        return   $randomSection = $section[$randomIndex2];
+    }
+    public function ge3()
+    {
+
+
+
+        $framework = [
+            'Flutter',
+            'AngularJs',
+            'ReactJs',
+            'Laravel',
+            'ReactNative',
+            'Net',
+            'jQuery',
+            'Asp',
+            'Django',
+            'Xamarin',
+            'BootStrap',
+        ];
+
+
+        $randomIndex3 = array_rand($framework);
+        return  $randomFramework = $framework[$randomIndex3];
+    }
+    public function ge4()
+    {
+        $specialty = ['AI', 'Software', 'Cyber Security', 'Network'];
+        $randomIndex4 = array_rand($specialty);
+        return  $randomSpecialty = $specialty[$randomIndex4];
+    }
+
+    public function run(): void
+    {
+        $this->call(CommunitySeeder::class);
+
+        //User::factory()->count(10)->create();
+
+        $all = User::pluck('id')->toArray();
+
+        $user = User::all();
+        $specialty = ['AI', 'Software', 'Cyber Security', 'Network'];
+        $randomIndex4 = array_rand($specialty);
+        $randomSpecialty = $specialty[$randomIndex4];
+        $type = [
+            'Road map',
+            'Job Opportunities',
+            'Story',
+            'Regular',
+            'Question',
+            'Advise',
+            'CV',
+            'Accepted Challenge',
+            'Challenge'
+        ];
+        $randomLanguage1 = $this->ge();
+
+        $randomFramework1 =  $this->ge3();
+        $randomSection1 =  $this->ge2();
+        $randomspecialty1 =  $this->ge4();
+
+        $communities_names = array_merge(
+
+            explode(',', $randomspecialty1),
+            explode(',', $randomSection1),
+            explode(',', $randomFramework1),
+            explode(',', $randomLanguage1)
+        );
+        $communities_names = array_map(fn ($element) => $element . ' Space', $communities_names);
+        $communities = Community::whereIn('name', $communities_names)->get();
+        $community_id = $communities->pluck('id')->toArray();
+
+
+        $randomIndex5 = array_rand($type);
+        $randomType = $type[$randomIndex5];
+
+        for ($i1 = 0; $i1 < count($all); $i1++) {
+
+            $user[$i1]->communities()->attach($community_id);
+            for ($i = 0; $i < 4; $i++) {
+                $id = $user[$i1]->id;
+                $user[$i1]->locationPosts()->create([
+                    'title' => fake()->title(),
+                    'content' => fake()->text(),
+                    'type' => $randomType,
+                    'likes_counts' => 0,
+                    'dislikes_counts' => 0,
+                    'reports_number' => 0,
+                    'user_id' => $id
+                ]);
+            }
+
+            $user[$i1]->specialty()->create([
+
+                'specialty' => $randomspecialty1,
+                'language' => $randomLanguage1,
+                'framework' => $randomFramework1,
+                'section' => $randomSection1,
+                'user_id' => $id
+            ]);
+            foreach ($community_id as $com_id) {
+                $community = Community::find($com_id);
+
+                $community->posts()->create([
+                    'title' => fake()->title(),
+                    'content' => fake()->text(),
+                    'type' => $randomType,
+                    'user_id' => $id
+                ]);
+
+                $community->update([
+                    'subscriber_counts' => $community->subscriber_counts + 1
+                ]);
+            }
+        }
+    }
+}

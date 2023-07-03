@@ -159,8 +159,9 @@ class PostController extends Controller
        $aa= $user->communities;
 
 //return $aa->posts;
-      $a= ($this->getMyCommuites())->get('id');
-  $c=  Community::find($a);
+       $a= ($this->getMyCommuites())->pluck('id');
+ return $c=  post::where('location_type','App\Models\Community  ')->whereIn('location_id',$a)
+ ->latest()->take(3)->get();
  return $c->posts();
     }
 }

@@ -9,5 +9,5 @@ Route::get('getMyPosts', 'getMyPosts')->middleware(['auth:sanctum']);
 Route::get('getMyCommuites', 'getMyCommuites')->middleware(['auth:sanctum']);
 Route::get('gethomeposts', 'gethomeposts')->middleware(['auth:sanctum']);
 
-Route::get('getallposts', 'getallposts')->middleware(['auth:sanctum']);
+Route::get('getallposts', 'getallposts');
 Route::get('addmedia', 'addmedia')->middleware(['auth:sanctum']);
