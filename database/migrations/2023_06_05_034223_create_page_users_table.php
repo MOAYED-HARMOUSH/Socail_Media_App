@@ -24,6 +24,8 @@ return new class extends Migration
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
 
+            $table->unique(['user_id','page_id']);
+
             $table->timestamps();
         });
     }

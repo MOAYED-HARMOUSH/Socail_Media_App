@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('specialties', function (Blueprint $table) {
             $table->id();
-            $table->enum('specialty', [
+            $table->text('specialty', [
                 'AI',
                 'Software',
                 'Cyber_Security',

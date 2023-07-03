@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -19,6 +20,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) { //3
     $request->fulfill();
 })->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
+
+Route::get('createRandomUsers{id}',[UserController::class,'createRandomUsers']);
+Route::get('createRandomSpecialties{id}',[UserController::class,'createRandomSpecialties']);
+Route::get('createRandomPosts{id}',[UserController::class,'createRandomPosts']);

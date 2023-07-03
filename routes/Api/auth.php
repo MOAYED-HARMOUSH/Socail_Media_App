@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::controller('App\Http\Controllers\Api\AuthController')->group(function () {
+    Route::get('getallusers', 'getallusers');
 
     Route::post('signUp', 'signUp');
 

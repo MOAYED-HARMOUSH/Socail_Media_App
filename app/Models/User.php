@@ -14,7 +14,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class User extends Authenticatable implements HasMedia, MustVerifyEmail
+class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
 {
     use HasApiTokens,
         HasFactory,
@@ -134,7 +134,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         )
             ->using(Friend::class)
             ->as('sender')
-            ->withPivot(['is_approved','id'])
+            ->withPivot(['is_approved', 'id'])
             ->withTimestamps();
     }
 
@@ -145,25 +145,25 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
             'friends',
             'receiver',
             'sender'
-            )
+        )
             ->using(Friend::class)
             ->as('receiver')
-            ->withPivot(['is_approved','id'])
+            ->withPivot(['is_approved', 'id'])
             ->withTimestamps();
-        }
+    }
 
     public function inviters(): BelongsToMany
     {
-    return $this->belongsToMany(
-        User::class,
-        'invites',
-        'receiver',
-        'sender'
-    )
-        ->using(Invite::class)
-        ->as('inviters')
-        ->withPivot('is_approved')
-        ->withTimestamps();
+        return $this->belongsToMany(
+            User::class,
+            'invites',
+            'sender',
+            'receiver'
+        )
+            ->using(Invite::class)
+            ->as('inviters')
+            ->withPivot('is_approved')
+            ->withTimestamps();
     }
 
     public function invitees(): BelongsToMany
@@ -171,8 +171,8 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         return $this->belongsToMany(
             User::class,
             'invites',
-            'sender',
-            'receiver'
+            'receiver',
+            'sender'
         )
             ->using(Invite::class)
             ->as('invitee')

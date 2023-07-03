@@ -2,73 +2,49 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\User;
-use App\Models\Invite;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class InviteController extends Controller
 {
-    public function create(Request $request, $id)
+    public function getFriendsNotMembers(Request $request, FriendController $friendController)
     {
-        $user = Auth::user();
-        $user = User::find($user->id);
-        //    return Request_Media::all();
-        $test = Invite::where('sender_invite', $user->id)->where('reciever_invite', $id)->value('id');
-        if ($test == null) {
-            $request_media = Invite::create([
-                'sender_invite' => $user->id,
-                'receiver_invite' => $id,
-                'page_invite_id' => $request->page_invite_id,
-            ]);
-            return $request_media->save();
-        } else {
-            return 'already invite him';
+        $friends = $friendController->showFriends($request);
+
+        $not_members = [];
+        foreach ($friends as $friend) {
+            $is_admin = $friend->pages()->find($request->id);
+            $is_member = $friend->memberPages()->find($request->id);
+
+            if ($is_admin == null && $is_member == null)
+                $not_members[] = $friend;
         }
+
+        return response()->json([
+            'Message' => 'success',
+            'Not Members' => $not_members
+        ]);
     }
 
-    public function getmyinvitestome()
+    public function send(Request $request)
     {
-        $user = Auth::user();
-        $user = User::find($user->id);
-        //    return Request_Media::all();
-        return  $test = Invite::where('reciever_invite', $user->id)->get();
+        $request->user()->inviters()->attach($request->id, ['page_id' => $request->page_id]);
+
+        //Send Notification to Receiver
+
+        return response()->json(['Message' => 'Success']);
     }
 
-    public function getmyinvitestopeople(Request $request, $id)
+    public function accept(Request $request)
     {
-        $user = Auth::user();
-        $user = User::find($user->id);
-        //    return Request_Media::all();
-        return  $test = Invite::where('sender_invite', $user->id)->get();
-    }
+        $request->user()->invitees()
+            ->where('invites.page_id', $request->id)
+            ->update(['is_approved' => true]);
 
-    public function accept(Request $request, $id)
-    {
-        { // acccept/decline  // اعمل is approved وتحقق بالكويري
-            $user = Auth::user();
-            $user = User::find($user->id);
-            $tosenderifacceptornot = $request->is_approved;
-            if ($tosenderifacceptornot == 1) {
-                // ارسال اشعار للمرسل بالقبول
-            } else {
-                // ارسال اشعار للمرسل بالرفض
+        FollowPageController::follow($request);
 
-            }
-            $test = Invite::where('reciever_invite', $user->id)->get();
-            $sender = Invite::where('reciever_invite', $user->id)->value('sender_invite');
-            Invite::where('sender_invite', $id)->update(
-                [
-                    'is_approved' => $request->is_approved,
-                ]
-            );
-            return Invite::find($id);
-        }
-    }
+        //Send Notification to Sender
 
-    public function index()
-    {
-        return Invite::all();
+        return response()->json(['Message' => 'Success']);
     }
 }
