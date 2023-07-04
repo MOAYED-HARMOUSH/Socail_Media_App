@@ -29,20 +29,26 @@ class UserController extends Controller
 
         return $request->user()->update($request->all());
     }
+    public function Editspecialty(Request $request) //test
+    {
+
+          return  $request->user()->specialty()->update($request->all());
+
+    }
+
 
     public function createRandomUsers($count)
     {
         $factory = User::factory();
-
         for ($i = 0; $i < $count; $i++) {
             $user = $factory->create();
             $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
             $arr[$i]=$token;
             $users[$i]=$user;
         }
-        return [$users,$arr];
+        return [$arr,$users];
     }
-    
+
 }
 
 
