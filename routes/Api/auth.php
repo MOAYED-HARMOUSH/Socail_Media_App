@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 
-Route::controller('App\Http\Controllers\Api\AuthController')->group(function () {
+Route::controller(AuthController::class)->group(function () {
+
     Route::get('getallusers', 'getallusers');
 
     Route::post('signUp', 'signUp');
@@ -19,7 +22,7 @@ Route::controller('App\Http\Controllers\Api\AuthController')->group(function () 
     });
 });
 
-Route::controller('App\Http\Controllers\Api\ResetPasswordController')->group(function () {
+Route::controller(ResetPasswordController::class)->group(function () {
 
     Route::post('forgotPassword', 'forgotPassword');
 

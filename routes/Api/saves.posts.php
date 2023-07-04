@@ -6,4 +6,4 @@ Route::post('save','create');
 
 Route::get('show','show');
 
-Route::delete('unsave','destroy');
+Route::post('unsave','destroy');

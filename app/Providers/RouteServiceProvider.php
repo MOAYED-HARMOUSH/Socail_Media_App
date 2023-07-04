@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\FavoritePostController;
+use App\Http\Controllers\Api\FollowPageController;
 use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\InviteController;
+use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -86,7 +88,14 @@ class RouteServiceProvider extends ServiceProvider
             Route::name('pages.')
                 ->middleware(['api', 'auth:sanctum'])
                 ->prefix('api/pages')
+                ->controller(PageController::class)
                 ->group(base_path('routes/Api/pages.php'));
+
+            Route::name('pages.following')
+                ->middleware(['api', 'auth:sanctum'])
+                ->prefix('api/pages/following')
+                ->controller(FollowPageController::class)
+                ->group(base_path('routes/Api/follow.pages.php'));
         });
     }
 }

@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
 
-        event(new Registered($user)); //2
+        // event(new Registered($user)); //2
 
         $user->specialty()->create($request->all());
 
@@ -94,7 +94,7 @@ class AuthController extends Controller
             'Message' => 'Signed Out Successfully'
         ]);
     }
-    
+
     public function getallusers()
     {
         $u = $users = User::all();

@@ -162,8 +162,13 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
         )
             ->using(Invite::class)
             ->as('inviters')
-            ->withPivot('is_approved')
+            ->withPivot(['is_approved', 'id', 'page_id'])
             ->withTimestamps();
+    }
+
+    public function invitersOne(): HasMany
+    {
+        return $this->hasMany(Invite::class, 'sender');
     }
 
     public function invitees(): BelongsToMany
@@ -176,7 +181,12 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
         )
             ->using(Invite::class)
             ->as('invitee')
-            ->withPivot('is_approved')
+            ->withPivot(['is_approved', 'id', 'page_id'])
             ->withTimestamps();
+    }
+
+    public function inviteesOne(): HasMany
+    {
+        return $this->hasMany(Invite::class, 'receiver');
     }
 }

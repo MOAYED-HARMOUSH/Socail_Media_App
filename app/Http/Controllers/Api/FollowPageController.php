@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Page;
-use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class FollowPageController extends Controller
 {
@@ -34,13 +32,18 @@ class FollowPageController extends Controller
         ]);
     }
 
-    public function show()
+    public static function index(Request $request)
     {
-        $user = Auth::user();
-        $user2 = User::find($user->id);
+        $my_followed_pages = $request->user()->memberPages()->get();
 
-        return $user2->Follow_Page()->get();
-        //    $a=$user2->Follow_Page()->pluck('id');
-        //    return $pages = Page::whereIn('id', $a)->get();
+        foreach ($my_followed_pages as $page) {
+            $page->getFirstMedia('cover_image');
+            $page->getFirstMedia('main_image');
+        }
+
+        return response()->json([
+            'Message' => 'success',
+            'My Followed Pages' => $my_followed_pages
+        ]);
     }
 }

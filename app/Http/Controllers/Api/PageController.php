@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Page;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -59,7 +60,31 @@ class PageController extends Controller
 
     public function show(Request $request)
     {
-        //show the specific one with its posts and its contents
+        // TODO: Get Posts From Page
+        $my_own_page = $request->user()->pages()->find($request->id);
+        if ($my_own_page != null)
+            return response()->json([
+                'Message' => 'success',
+                'Page' => $my_own_page,
+                'Status' => 'Admin',
+                // 'Posts' => $posts
+            ]);
+
+        $my_followed_page = $request->user()->memberPages()->find($request->id);
+        if ($my_followed_page != null)
+            return response()->json([
+                'Message' => 'success',
+                'Page' => $my_followed_page,
+                'Status' => 'Member',
+                // 'Posts' => $posts
+            ]);
+
+        $page = Page::find($request->id);
+        return response()->json([
+            'Message' => 'success',
+            'Page' => $page,
+            'Status' => 'Visiter'
+        ]);
     }
 
     public function destroy(Request $request)
