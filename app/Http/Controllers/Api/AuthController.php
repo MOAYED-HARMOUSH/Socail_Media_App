@@ -10,7 +10,6 @@ use App\Models\Expert;
 use App\Models\Student;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
-use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
