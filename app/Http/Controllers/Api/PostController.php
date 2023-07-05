@@ -13,6 +13,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use App\Models\Community;
 use App\Models\CommunityUser;
 use App\Http\Controllers\Api\FriendController;
+use App\Models\Comment;
 use App\Models\Page;
 use App\Models\PageUser;
 use App\Models\Reaction;
@@ -298,6 +299,90 @@ class PostController extends Controller
                 'type' => 'dislikes'
             ]);
             $post->update(['dislikes_counts' => $dislikes_on_this + 1]);
+            return 'dislikes';
+        }
+    }
+    public function create_comment_on_post(Request $request, $id)
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
+
+        return $user->comments()->create([
+            'content' => $request->content,
+            'post_id' => $id,
+        ]);
+    }
+    public function get_comments_on_post($id)
+    {
+
+        $post = Post::where('id', $id)->first();
+        return $post->comments;
+    }
+
+    public function like_or_cancellike_on_comment($id)
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $comment = Comment::find($id);
+
+        $comment_react = Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->value('type');
+        $dislikes_on_this = Comment::where('id', $comment->id)->value('dislikes_counts');
+
+        $likes_on_this = Comment::where('id', $comment->id)->value('likes_counts');
+
+        if ($comment_react == 'like') {
+            $comment->update(['likes_counts' => $likes_on_this - 1]);
+
+            Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->delete();
+            return 'cancel_like';
+        } else if ($comment_react == 'dislikes') {
+            Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->delete();
+
+            $comment->update(['dislikes_counts' => $dislikes_on_this - 1]);
+            $comment->update(['likes_counts' => $likes_on_this + 1]);
+            $comment->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'like'
+            ]);
+        } else {
+            $comment->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'like'
+            ]);
+            $comment->update(['likes_counts' => $likes_on_this + 1]);
+            return 'like';
+        }
+    }
+    public function dislike_or_canceldislike_on_comment($id)
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $comment = Comment::find($id);
+        $comment_react = Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->value('type');
+        $dislikes_on_this = Comment::where('id', $comment->id)->value('dislikes_counts');
+        $likes_on_this = Comment::where('id', $comment->id)->value('likes_counts');
+
+
+        if ($comment_react == 'dislikes') {
+            $comment->update(['dislikes_counts' => $dislikes_on_this - 1]);
+
+            Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->delete();
+            return 'cancel_dislikes';
+        } else if ($comment_react == 'like') {
+            Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->delete();
+
+            $comment->update(['likes_counts' => $likes_on_this - 1]);
+            $comment->update(['dislikes_counts' => $dislikes_on_this + 1]);
+            $comment->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'dislikes'
+            ]);
+        } else {
+            $comment->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'dislikes'
+            ]);
+            $comment->update(['dislikes_counts' => $dislikes_on_this + 1]);
             return 'dislikes';
         }
     }
