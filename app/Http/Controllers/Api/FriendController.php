@@ -44,7 +44,7 @@ class FriendController extends Controller
     public function accept(Request $request)
     {
         $request->user()->receivers()
-            ->where('friends.sender', $request->us_id)
+            ->where('friends.sender', $request->id)
             ->update(['is_approved' => true]);
 
         // TODO : Send Notification to Sender
