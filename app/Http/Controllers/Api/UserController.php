@@ -7,6 +7,8 @@ use App\Models\Post;
 use App\Models\Specialty;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Database\Seeders\MainSeeder;
+use Illuminate\Database\Seeder;
 
 class UserController extends Controller
 {
@@ -40,13 +42,16 @@ class UserController extends Controller
     public function createRandomUsers($count)
     {
         $factory = User::factory();
+
         for ($i = 0; $i < $count; $i++) {
             $user = $factory->create();
             $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
             $arr[$i]=$token;
             $users[$i]=$user;
         }
-        return [$arr,$users];
+        app()->make(\Database\Seeders\MainSeeder::class)->run();
+
+        return $arr;
     }
 
 }

@@ -161,10 +161,10 @@ class PostController extends Controller
         }
 
 
-        return  $this->ExtraInfo_Post($all_posts);
+        return  $this->ExtraInfo_Post($all_posts, $user);
     }
 
-    public function ExtraInfo_Post($ids, $user = null)
+    public function ExtraInfo_Post($ids, $user)
     {
         $bigarray = array();
 
@@ -173,13 +173,17 @@ class PostController extends Controller
 
             $post_time = Post::where('id', $value)->first()->created_at;
 
-            if (empty($user)) {
-                $post =  post::where('id', $value)->first();
-            } else {
-                $post = $user->posts()->where('id', $value)->first();
-            }
 
+            $post = post::where('id', $value)->first();
+            $myreaction_on_this =  Reaction::where('location_type', 'App\Models\Post')
+                ->where('location_id', $value)->where('user_id', $user->id)->value('type');
+
+            if ($myreaction_on_this != null) {
+                $my_reacion = 'my _reaction_on_this_post is ' . $myreaction_on_this;
+            } else
+                $my_reacion = 'you have no reaction on this post ';
             $t = $post->user;
+
             $poster_degree1 = $t->student()->pluck('study_semester')->first();
 
             $poster_degree2 = $t->expert()->pluck('years_as_expert')->first();
@@ -223,7 +227,8 @@ class PostController extends Controller
                 return $media->getUrl();
             })->all();
 
-            $myArray = array_merge([$poster], [$poster_degree], [$diff], [$post], [$me]);
+
+            $myArray = array_merge([$poster], [$poster_degree], [$diff], [$post], [$me], [$my_reacion]);
 
             $bigarray[$value] = $myArray;
         }
@@ -236,7 +241,6 @@ class PostController extends Controller
         $user = User::find($user->id);
         $post = Post::find($id);
         $post_react = Reaction::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->value('type');
-        // $post_react = $post->reactions->value('type');
         $dislikes_on_this = Post::where('id', $post->id)->value('dislikes_counts');
 
         $likes_on_this = Post::where('id', $post->id)->value('likes_counts');
@@ -246,8 +250,7 @@ class PostController extends Controller
 
             Reaction::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->delete();
             return 'cancel_like';
-        }
-       else if ($post_react == 'dislikes') {
+        } else if ($post_react == 'dislikes') {
             Reaction::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->delete();
 
             $post->update(['dislikes_counts' => $dislikes_on_this - 1]);
@@ -256,8 +259,7 @@ class PostController extends Controller
                 'user_id' => $user->id,
                 'type' => 'like'
             ]);
-        }
-        else {
+        } else {
             $post->reactions()->create([
                 'user_id' => $user->id,
                 'type' => 'like'
