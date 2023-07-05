@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use App\Models\Community;
 use App\Models\CommunityUser;
+use App\Http\Controllers\Api\FriendController;
+use App\Models\Comment;
+use App\Models\Page;
+use App\Models\PageUser;
+use App\Models\Reaction;
 
 class PostController extends Controller
 {
@@ -35,7 +40,7 @@ class PostController extends Controller
         return response()->json($post, 200, ['created']);
     }
     public function create_from_community(Request $request, $id)
-    { // on home page
+    {
 
         $user = Auth::user();
         $user = User::find($user->id);
@@ -50,24 +55,139 @@ class PostController extends Controller
         $this->medi($request, $post, $user);
         return response()->json($post, 200, ['created']);
     }
+    public function create_from_page(Request $request, $id)
+    {
+
+
+
+        $user = Auth::user();
+        $user = User::find($user->id);
+
+
+        $page = Page::find($id);
+        $check = Page::where('admin_id', $user->id)->where('id', $id)->value('id');
+        if ($check == null) {
+            return 'not admin';
+        } else {
+            $post = $page->posts()->create([
+                'title' => $request->title,
+                'content' => $request->content,
+                'type' => $request->type,
+                'user_id' => $user->id
+            ]);
+
+            $this->medi($request, $post, $user);
+            return response()->json($post, 200, ['created']);
+        }
+    }
     public function getMyPosts()
     {
         $user = Auth::user();
         $user = User::find($user->id);
         $ids = $user->posts()->pluck('id');
-        $bigarray = array(); // تعريف المتغير $bigarray
+
+        return  $this->ExtraInfo_Post($ids, $user);
+    }
+
+    public function getallposts()
+    {
+        return Post::all();
+    }
+    public function getMyCommuites()
+    {
+        $user = Auth::user();
+        $user = User::find($user->id)->id;
+        $sub = CommunityUser::where('user_id', $user)->pluck('community_id');
+        return Community::whereIn('id', $sub)->get();
+    }
+    public function getMyPagesasfollow()
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $pages_id = $user->memberPages->pluck('id');
+        return Page::whereIn('id', $pages_id)->get();
+    }
+
+    public function medi($request, $post, $user)
+    {
+        for ($i = 1; $i <= 4; $i++) {
+            if ($request->hasFile('image' . $i)) {
+                $request->hasFile('image' . $i);
+                $photo = $user->addMediaFromRequest('image' . $i)->toMediaCollection('post_photos');
+                $post->photos()->create([
+                    'media_id' => $photo->id
+                ]);
+            }
+
+            if ($request->hasFile('video' . $i)) {
+                $request->hasFile('video' . $i);
+
+                $video = $user->addMediaFromRequest('video' . $i)->toMediaCollection('post_vedios');
+                $post->videos()->create([
+                    'media_id' => $video->id
+                ]);
+            }
+        }
+        $message = 'created ';
+    }
+
+    public function gethomeposts(Request $request)
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
+
+        $communites_ids = ($this->getMyCommuites())->pluck('id');
+        $communites_posts_ids =  post::where('location_type', 'App\Models\Community')
+            ->whereIn('location_id', $communites_ids)->pluck('id');
+
+        $friend = new FriendController;
+        $friends_ids = $friend->showFriends($request)->pluck('id');
+
+        $friend_posts_ids = Post::where('location_type', 'App\Models\User')
+            ->whereIn('user_id', $friends_ids)->pluck('id');
+
+        $pages_ids = ($this->getMyPagesasfollow())->pluck('id');
+        $pages_posts_ids =  post::where('location_type', 'App\Models\Page')
+            ->whereIn('location_id', $pages_ids)->pluck('id');
+
+
+
+        $all_posts = $communites_posts_ids->toArray();
+
+        foreach ($friend_posts_ids as $value) {
+            array_push($all_posts, $value);
+        }
+        foreach ($pages_posts_ids as $value2) {
+            array_push($all_posts, $value2);
+        }
+
+
+        return  $this->ExtraInfo_Post($all_posts, $user);
+    }
+
+    public function ExtraInfo_Post($ids, $user)
+    {
+        $bigarray = array();
 
         foreach ($ids as  $value) {
 
 
             $post_time = Post::where('id', $value)->first()->created_at;
 
-            $post = $user->posts()->where('id', $value)->first();
 
+            $post = post::where('id', $value)->first();
+            $myreaction_on_this =  Reaction::where('location_type', 'App\Models\Post')
+                ->where('location_id', $value)->where('user_id', $user->id)->value('type');
 
-            $poster_degree1 = $post->user->student()->pluck('study_semester')->first();
+            if ($myreaction_on_this != null) {
+                $my_reacion = 'my _reaction_on_this_post is ' . $myreaction_on_this;
+            } else
+                $my_reacion = 'you have no reaction on this post ';
+            $t = $post->user;
 
-            $poster_degree2 = $post->user->expert()->pluck('years_as_expert')->first();
+            $poster_degree1 = $t->student()->pluck('study_semester')->first();
+
+            $poster_degree2 = $t->expert()->pluck('years_as_expert')->first();
 
             if (empty($poster_degree1) && empty($poster_degree2)) {
                 $poster_degree = 'amateur';
@@ -95,7 +215,7 @@ class PostController extends Controller
             } else {
                 $diff = $now->diffInHours($old_datetime) . ' hours ago';
             }
-            $poster = $user->first_name . ' ' . $user->last_name;
+            $poster = $post->user->first_name . ' ' . $post->user->last_name;
 
 
             $photos_media = $post->photos()->where('post_id', $value)->pluck('media_id');
@@ -108,59 +228,162 @@ class PostController extends Controller
                 return $media->getUrl();
             })->all();
 
-            $myArray = array_merge([$poster], [$poster_degree], [$diff], [$post], [$me]);
+
+            $myArray = array_merge([$poster], [$poster_degree], [$diff], [$post], [$me], [$my_reacion]);
 
             $bigarray[$value] = $myArray;
         }
 
         return ($bigarray != null) ? $bigarray : 'you dont have posts';
     }
-
-    public function getallposts()
-    {
-        return Post::all();
-    }
-    public function getMyCommuites()
+    public function like_or_cancellike_on_post($id)
     {
         $user = Auth::user();
-        $user = User::find($user->id)->id;
-        $sub = CommunityUser::where('user_id', $user)->pluck('community_id');
-        return Community::whereIn('id', $sub)->get();
-    }
+        $user = User::find($user->id);
+        $post = Post::find($id);
+        $post_react = Reaction::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->value('type');
+        $dislikes_on_this = Post::where('id', $post->id)->value('dislikes_counts');
 
-    public function medi($request, $post, $user)
-    {
-        for ($i = 1; $i <= 4; $i++) {
-            if ($request->hasFile('image' . $i)) {
-                $request->hasFile('image' . $i);
-                $photo = $user->addMediaFromRequest('image' . $i)->toMediaCollection('post_photos');
-                $post->photos()->create([
-                    'media_id' => $photo->id
-                ]);
-            }
+        $likes_on_this = Post::where('id', $post->id)->value('likes_counts');
 
-            if ($request->hasFile('video' . $i)) {
-                $request->hasFile('video' . $i);
+        if ($post_react == 'like') {
+            $post->update(['likes_counts' => $likes_on_this - 1]);
 
-                $video = $user->addMediaFromRequest('video' . $i)->toMediaCollection('post_vedios');
-                $post->videos()->create([
-                    'media_id' => $video->id
-                ]);
-            }
+            Reaction::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->delete();
+            return 'cancel_like';
+        } else if ($post_react == 'dislikes') {
+            Reaction::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->delete();
+
+            $post->update(['dislikes_counts' => $dislikes_on_this - 1]);
+            $post->update(['likes_counts' => $likes_on_this + 1]);
+            $post->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'like'
+            ]);
+        } else {
+            $post->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'like'
+            ]);
+            $post->update(['likes_counts' => $likes_on_this + 1]);
+            return 'like';
         }
-        $message = 'created ';
     }
-    public function gethomeposts()
+    public function dislike_or_canceldislike_on_post($id)
     {
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $post = Post::find($id);
+        $post_react = Reaction::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->value('type');
+        $dislikes_on_this = Post::where('id', $post->id)->value('dislikes_counts');
+        $likes_on_this = Post::where('id', $post->id)->value('likes_counts');
 
+
+        if ($post_react == 'dislikes') {
+            $post->update(['dislikes_counts' => $dislikes_on_this - 1]);
+
+            Reaction::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->delete();
+            return 'cancel_dislikes';
+        } else if ($post_react == 'like') {
+            Reaction::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->delete();
+
+            $post->update(['likes_counts' => $likes_on_this - 1]);
+            $post->update(['dislikes_counts' => $dislikes_on_this + 1]);
+            $post->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'dislikes'
+            ]);
+        } else {
+            $post->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'dislikes'
+            ]);
+            $post->update(['dislikes_counts' => $dislikes_on_this + 1]);
+            return 'dislikes';
+        }
+    }
+    public function create_comment_on_post(Request $request, $id)
+    {
         $user = Auth::user();
         $user = User::find($user->id);
 
-       $aa= $user->communities;
+        return $user->comments()->create([
+            'content' => $request->content,
+            'post_id' => $id,
+        ]);
+    }
+    public function get_comments_on_post($id)
+    {
 
-//return $aa->posts;
-      $a= ($this->getMyCommuites())->get('id');
-  $c=  Community::find($a);
- return $c->posts();
+        $post = Post::where('id', $id)->first();
+        return $post->comments;
+    }
+
+    public function like_or_cancellike_on_comment($id)
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $comment = Comment::find($id);
+
+        $comment_react = Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->value('type');
+        $dislikes_on_this = Comment::where('id', $comment->id)->value('dislikes_counts');
+
+        $likes_on_this = Comment::where('id', $comment->id)->value('likes_counts');
+
+        if ($comment_react == 'like') {
+            $comment->update(['likes_counts' => $likes_on_this - 1]);
+
+            Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->delete();
+            return 'cancel_like';
+        } else if ($comment_react == 'dislikes') {
+            Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->delete();
+
+            $comment->update(['dislikes_counts' => $dislikes_on_this - 1]);
+            $comment->update(['likes_counts' => $likes_on_this + 1]);
+            $comment->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'like'
+            ]);
+        } else {
+            $comment->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'like'
+            ]);
+            $comment->update(['likes_counts' => $likes_on_this + 1]);
+            return 'like';
+        }
+    }
+    public function dislike_or_canceldislike_on_comment($id)
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $comment = Comment::find($id);
+        $comment_react = Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->value('type');
+        $dislikes_on_this = Comment::where('id', $comment->id)->value('dislikes_counts');
+        $likes_on_this = Comment::where('id', $comment->id)->value('likes_counts');
+
+
+        if ($comment_react == 'dislikes') {
+            $comment->update(['dislikes_counts' => $dislikes_on_this - 1]);
+
+            Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->delete();
+            return 'cancel_dislikes';
+        } else if ($comment_react == 'like') {
+            Reaction::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->delete();
+
+            $comment->update(['likes_counts' => $likes_on_this - 1]);
+            $comment->update(['dislikes_counts' => $dislikes_on_this + 1]);
+            $comment->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'dislikes'
+            ]);
+        } else {
+            $comment->reactions()->create([
+                'user_id' => $user->id,
+                'type' => 'dislikes'
+            ]);
+            $comment->update(['dislikes_counts' => $dislikes_on_this + 1]);
+            return 'dislikes';
+        }
     }
 }

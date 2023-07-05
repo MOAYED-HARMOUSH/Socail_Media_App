@@ -25,6 +25,8 @@ class Post extends Model implements HasMedia
         'content',
         'title',
         'reports_number',
+        'location_type',
+        'loction_id'
     ];
 
     public function user(): BelongsTo

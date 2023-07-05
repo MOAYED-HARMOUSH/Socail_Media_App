@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('reactions', function (Blueprint $table) {
             $table->id();
-            $table->boolean('type');
+            $table->string('type');
 
             $table->morphs('location');
 
