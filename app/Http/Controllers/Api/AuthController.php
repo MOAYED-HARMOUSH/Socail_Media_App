@@ -102,7 +102,6 @@ class AuthController extends Controller
         $u_id =  $users = User::pluck('id');
         for ($i = 0; $i < $users->count(); $i++) {
             $user = User::where('id', $i)->get();
-
             $student = Student::whereIn('user_id', $u_id)->get();
             $expert = Expert::whereIn('user_id', $u_id)->get();
         }

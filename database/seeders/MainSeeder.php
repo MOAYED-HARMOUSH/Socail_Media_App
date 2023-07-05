@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Community;
+use App\Models\Page;
 use Database\Factories\UserFactory;
 
 class MainSeeder extends Seeder
@@ -117,9 +118,10 @@ class MainSeeder extends Seeder
         $all = User::pluck('id')->toArray();
 
         $user = User::all();
+
         $specialty = ['AI', 'Software', 'Cyber Security', 'Network'];
         $randomIndex4 = array_rand($specialty);
-        $randomSpecialty = $specialty[$randomIndex4];
+        // $randomSpecialty = $specialty[$randomIndex4];
         $type = [
             'Road map',
             'Job Opportunities',
@@ -131,6 +133,9 @@ class MainSeeder extends Seeder
             'Accepted Challenge',
             'Challenge'
         ];
+        $randomIndex5 = array_rand($type);
+        $randomType = $type[$randomIndex5];
+
         $randomLanguage1 = $this->ge();
 
         $randomFramework1 =  $this->ge3();
@@ -149,14 +154,13 @@ class MainSeeder extends Seeder
         $community_id = $communities->pluck('id')->toArray();
 
 
-        $randomIndex5 = array_rand($type);
-        $randomType = $type[$randomIndex5];
 
         for ($i1 = 0; $i1 < count($all); $i1++) {
 
             $user[$i1]->communities()->attach($community_id);
             for ($i = 0; $i < 4; $i++) {
                 $id = $user[$i1]->id;
+                
                 $user[$i1]->locationPosts()->create([
                     'title' => fake()->title(),
                     'content' => fake()->text(),
@@ -174,6 +178,26 @@ class MainSeeder extends Seeder
                 'language' => $randomLanguage1,
                 'framework' => $randomFramework1,
                 'section' => $randomSection1,
+                'user_id' => $id
+            ]);
+            $pag =  $user[$i1]->pages()->create([
+
+                'name' => fake()->name(),
+                'email' => fake()->unique()->safeEmail(),
+                'type' => 'Famous',
+                'bio' => fake()->text(),
+                'follower_counts' => 0,
+                'admin_id' => $id
+            ]);
+            $page = Page::find($pag->id);
+            $page->posts()->create([
+
+                'title' => fake()->title(),
+                'content' => fake()->text(),
+                'type' => $randomType,
+                'likes_counts' => 0,
+                'dislikes_counts' => 0,
+                'reports_number' => 0,
                 'user_id' => $id
             ]);
             foreach ($community_id as $com_id) {

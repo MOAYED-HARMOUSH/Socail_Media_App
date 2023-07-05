@@ -7,6 +7,8 @@ use App\Models\Post;
 use App\Models\Specialty;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Database\Seeders\MainSeeder;
+use Illuminate\Database\Seeder;
 
 class UserController extends Controller
 {
@@ -29,6 +31,13 @@ class UserController extends Controller
 
         return $request->user()->update($request->all());
     }
+    public function Editspecialty(Request $request) //test
+    {
+
+          return  $request->user()->specialty()->update($request->all());
+
+    }
+
 
     public function createRandomUsers($count)
     {
@@ -40,9 +49,11 @@ class UserController extends Controller
             $arr[$i]=$token;
             $users[$i]=$user;
         }
-        return [$users,$arr];
+        app()->make(\Database\Seeders\MainSeeder::class)->run();
+
+        return $arr;
     }
-    
+
 }
 
 

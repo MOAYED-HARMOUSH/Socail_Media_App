@@ -9,15 +9,16 @@ class FriendController extends Controller
 {
     public function send(Request $request)
     {
-        $received = $request->user()->receivers()->where('friends.sender', $request->id)->get();
+        $received = $request->user()->receivers()->where('friends.sender', $request->id)->first();
 
-        if ($received == null)
-            $request->user()->senders()->attach($request->id);
-        else
+        if (empty($received)) {
+            $request->user()->senders()->attach($request->us_id);
+            return 'sent';
+        } else {
             return response()->json([
                 'Message' => 'You have request from this user'
             ]);
-
+        }
         //Send Notification to Receiver
 
         return response()->json(['Message' => 'Success']);
@@ -38,7 +39,7 @@ class FriendController extends Controller
     public function accept(Request $request)
     {
         $request->user()->receivers()
-            ->where('friends.sender', $request->id)
+            ->where('friends.sender', $request->us_id)
             ->update(['is_approved' => true]);
 
         //Send Notification to Sender
@@ -67,7 +68,7 @@ class FriendController extends Controller
         ]);
     }
 
-    public function showFriends(Request $request)
+    public  function showFriends(Request $request)
     {
         $received_friends = $request->user()->receivers()->where('friends.is_approved', true)->get();
         $sent_friends = $request->user()->senders()->where('friends.is_approved', true)->get();
