@@ -66,7 +66,7 @@ class PageController extends Controller
             return response()->json([
                 'Message' => 'success',
                 'Page' => $my_own_page,
-                'Status' => 'Admin',
+                'Role' => 'Admin',
                 // 'Posts' => $posts
             ]);
 
@@ -75,7 +75,7 @@ class PageController extends Controller
             return response()->json([
                 'Message' => 'success',
                 'Page' => $my_followed_page,
-                'Status' => 'Member',
+                'Role' => 'Member',
                 // 'Posts' => $posts
             ]);
 
@@ -83,7 +83,8 @@ class PageController extends Controller
         return response()->json([
             'Message' => 'success',
             'Page' => $page,
-            'Status' => 'Visiter'
+            'Role' => 'Visiter'
+            // 'Posts' => $posts
         ]);
     }
 
@@ -112,7 +113,7 @@ class PageController extends Controller
 
         return response()->json([
             'Message' => 'success',
-            'Page' => collect($page)->except('media')
+            'Page' => $page
         ]);
     }
 }

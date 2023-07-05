@@ -9,16 +9,19 @@ class FriendController extends Controller
 {
     public function send(Request $request)
     {
+        if ($request->user()->id == $request->id)
+            return 'Don\'t be Silly';
+
         $received = $request->user()->receivers()->where('friends.sender', $request->id)->get();
 
-        if ($received != null)
+        if (sizeof($received) == 0)
             $request->user()->senders()->attach($request->id);
         else
             return response()->json([
                 'Message' => 'You have request from this user'
             ]);
 
-        //Send Notification to Receiver
+        // TODO : Send Notification to Receiver
 
         return response()->json(['Message' => 'Success']);
     }
@@ -29,6 +32,9 @@ class FriendController extends Controller
             ->where('friends.receiver', $request->id)
             ->whereNull('friends.is_approved')
             ->detach($request->id);
+
+        // TODO : Delete Notification From Database.
+        // TODO : Cancel Notification to Receiver.
 
         return response()->json([
             'Message' => 'success'
@@ -41,7 +47,7 @@ class FriendController extends Controller
             ->where('friends.sender', $request->id)
             ->update(['is_approved' => true]);
 
-        //Send Notification to Sender
+        // TODO : Send Notification to Sender
 
         return response()->json(['Message' => 'Success']);
     }
@@ -51,8 +57,6 @@ class FriendController extends Controller
         $request->user()->receivers()
             ->where('friends.sender', $request->id)
             ->update(['is_approved' => false]);
-
-        //Send Notification to Sender
 
         return response()->json(['Message' => 'Success']);
     }
@@ -73,7 +77,7 @@ class FriendController extends Controller
 
         return response()->json([
             'Message' => 'success',
-            'Requests'=>$refused_request
+            'Requests' => $refused_request
         ]);
     }
 
