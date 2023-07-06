@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('invites', function (Blueprint $table) {
             $table->id();
-            $table->boolean('is_approved')->nullable();
 
             $table->foreignId('sender')
                 ->constrained('users')
