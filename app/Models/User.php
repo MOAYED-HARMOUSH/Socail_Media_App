@@ -189,4 +189,42 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
     {
         return $this->hasMany(Invite::class, 'receiver');
     }
+
+    public function getPeriodReceiverAttribute()
+    {
+        $duration = now()->diff($this->receiver->created_at)->__serialize();
+        if ($duration['y'] > 0)
+            return $duration['y'] . ' year(s)';
+        elseif ($duration['m'] > 0)
+            return $duration['m'] . ' month(s)';
+        elseif ($duration['d'] % 7 > 0)
+            return $duration['d'] % 7 . ' week(s)';
+        elseif ($duration['d'] > 0)
+            return $duration['d'] . ' day(s)';
+        elseif ($duration['h'] > 0)
+            return $duration['h'] . ' hour(s)';
+        elseif ($duration['i'] > 0)
+            return $duration['i'] . ' minute(s)';
+        else
+            return $duration['s'] . ' second(s)';
+    }
+
+    public function getPeriodSenderAttribute()
+    {
+        $duration = now()->diff($this->sender->created_at)->__serialize();
+        if ($duration['y'] > 0)
+            return $duration['y'] . ' year(s)';
+        elseif ($duration['m'] > 0)
+            return $duration['m'] . ' month(s)';
+        elseif ($duration['d'] % 7 > 0)
+            return $duration['d'] % 7 . ' week(s)';
+        elseif ($duration['d'] > 0)
+            return $duration['d'] . ' day(s)';
+        elseif ($duration['h'] > 0)
+            return $duration['h'] . ' hour(s)';
+        elseif ($duration['i'] > 0)
+            return $duration['i'] . ' minute(s)';
+        else
+            return $duration['s'] . ' second(s)';
+    }
 }
