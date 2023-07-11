@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Page;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Notifications\PageInvitation;
+use Illuminate\Support\Facades\Notification;
 
 class InviteController extends Controller
 {
@@ -32,6 +36,17 @@ class InviteController extends Controller
 
         // TODO : Send Notification to Receiver
 
+        $invitee = User::find($request->id);
+        $page_name = Page::find($request->page_id)->name;
+
+        $invitee->notify(
+            new PageInvitation(
+                true,
+                $request->user()->name,
+                $page_name
+            )
+        );
+
         return response()->json(['Message' => 'Success']);
     }
 
@@ -39,13 +54,12 @@ class InviteController extends Controller
     {
         $request->user()->inviters()
             ->where([
-                ['invites.page_id', $request->page_id],
-                ['invites.receiver_id', $request->receiver_id]
+                ['page_id', $request->page_id],
+                ['receiver', $request->receiver_id]
             ])
             ->detach($request->receiver_id);
 
         // TODO : Delete Notification From Database.
-        // TODO : Cancel Notification to Receiver.
 
         return response()->json([
             'Message' => 'success'
@@ -54,13 +68,36 @@ class InviteController extends Controller
 
     public function accept(Request $request)
     {
+        /*
+        We Don't Use:
+            $inviter = User::find($request->sender_id);
+        for Security Issue
+        */
+
+        $inviter = $request->user()->invitees()
+            ->where([
+                ['page_id', $request->page_id],
+                ['sender', $request->sender_id]
+            ])
+            ->first();
+
         $request->user()->inviteesOne()
             ->where('page_id', $request->id)
             ->delete();
 
+        $page_name = Page::find($request->id)->name;
+
         FollowPageController::follow($request);
 
         // TODO : Send Notification to All Senders
+
+        $inviter->notify(
+            new PageInvitation(
+                false,
+                $request->user()->name,
+                $page_name
+            )
+        );
 
         return response()->json(['Message' => 'Success']);
     }

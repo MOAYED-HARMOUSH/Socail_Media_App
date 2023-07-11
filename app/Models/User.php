@@ -162,7 +162,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
         )
             ->using(Invite::class)
             ->as('inviters')
-            ->withPivot(['is_approved', 'id', 'page_id'])
+            ->withPivot(['id', 'page_id'])
             ->withTimestamps();
     }
 
@@ -181,7 +181,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
         )
             ->using(Invite::class)
             ->as('invitee')
-            ->withPivot(['is_approved', 'id', 'page_id'])
+            ->withPivot(['id', 'page_id'])
             ->withTimestamps();
     }
 
@@ -226,5 +226,10 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
             return $duration['i'] . ' minute(s)';
         else
             return $duration['s'] . ' second(s)';
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
     }
 }

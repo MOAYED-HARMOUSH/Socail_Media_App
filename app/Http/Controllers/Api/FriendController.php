@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\User;
+use App\Notifications\FriendRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -12,16 +14,23 @@ class FriendController extends Controller
         if ($request->user()->id == $request->id)
             return 'You Can\'t Send Friend Request to yourself';
 
-        $received = $request->user()->receivers()->where('friends.sender', $request->id)->get();
+        $received = $request->user()->receivers()->where('friends.sender', $request->id)->first();
 
-        if (sizeof($received) == 0)
+        if ($received == null) {
             $request->user()->senders()->attach($request->id);
-        else
+            // TODO : Send Notification to Receiver
+
+            $receiver = User::find($request->id);
+            $receiver->notify(
+                new FriendRequest(
+                    true,
+                    $request->user()->name
+                )
+            );
+        } else
             return response()->json([
                 'Message' => 'You have request from this user'
             ]);
-
-        // TODO : Send Notification to Receiver
 
         return response()->json(['Message' => 'Success']);
     }
@@ -34,7 +43,6 @@ class FriendController extends Controller
             ->detach($request->id);
 
         // TODO : Delete Notification From Database.
-        // TODO : Cancel Notification to Receiver.
 
         return response()->json([
             'Message' => 'success'
@@ -48,6 +56,14 @@ class FriendController extends Controller
             ->update(['is_approved' => true]);
 
         // TODO : Send Notification to Sender
+
+        $sender = User::find($request->id);
+        $sender->notify(
+            new FriendRequest(
+                false,
+                $request->user()->name
+            )
+        );
 
         return response()->json(['Message' => 'Success']);
     }
