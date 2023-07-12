@@ -24,7 +24,7 @@ class AuthRequest extends FormRequest
      */
     public function rules(): array
     {
-        $date = now()->subYears(12);
+        $date = now()->subYears(2);
         $programming_age = Carbon::parse($this->programming_age)->subYears(10);
         $specialty = ['AI', 'Software', 'Cyber Security', 'Network'];
         $section = [
