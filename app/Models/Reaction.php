@@ -13,9 +13,7 @@ class Reaction extends Model
 
     protected $fillable = [
         'type',
-        // 'location_type','location_id',
         'user_id',
-        // 'location',
     ];
 
     public function user(): BelongsTo

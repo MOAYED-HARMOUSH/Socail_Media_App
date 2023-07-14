@@ -65,7 +65,7 @@ class Post extends Model implements HasMedia
 
     public function reactions(): MorphMany
     {
-        return $this->morphMany(Reaction::class,'location');
+        return $this->morphMany(Reaction::class, 'location');
     }
 
     public function reports(): MorphMany

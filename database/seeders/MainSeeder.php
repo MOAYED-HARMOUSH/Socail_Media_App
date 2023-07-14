@@ -7,7 +7,10 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\Page;
+use App\Models\Post;
+use App\Models\Comment;
 use Database\Factories\UserFactory;
+use App\Http\Controllers\Api\FriendController;
 
 class MainSeeder extends Seeder
 {
@@ -160,8 +163,8 @@ class MainSeeder extends Seeder
             $user[$i1]->communities()->attach($community_id);
             for ($i = 0; $i < 4; $i++) {
                 $id = $user[$i1]->id;
-                
-                $user[$i1]->locationPosts()->create([
+
+            $post=    $user[$i1]->locationPosts()->create([
                     'title' => fake()->title(),
                     'content' => fake()->text(),
                     'type' => $randomType,
@@ -200,6 +203,44 @@ class MainSeeder extends Seeder
                 'reports_number' => 0,
                 'user_id' => $id
             ]);
+            $pages =  Page::all();
+            $posts =  Post::all();
+            $comments=Comment::all();
+            foreach($pages as $pa)
+            {
+                $user[$i1]->memberPages()->attach($pa->id);
+
+                $page = Page::find($pa->id);
+                $page->update(['follower_counts' => $page->follower_counts + 1]);
+            }
+            foreach($posts as $po)
+            {
+                $likes_on_this = Post::where('id', $po->id)->value('likes_counts');
+
+                $po->reactions()->create([
+                    'user_id' => $user[$i1]->id,
+                    'type' => 'like'
+                ]);
+                $po->update(['likes_counts' =>$likes_on_this + 1]);
+
+              $comment=  $user[$i1]->comments()->create([
+                    'content' => fake()->text(),
+                    'post_id' => $po->id,
+                ]);
+
+
+                    $comment->reactions()->create([
+                        'user_id' => $user[$i1]->id,
+                        'type' => 'dislikes'
+                    ]);
+                    $dislikes_on_this = Comment::where('id', $comment->id)->value('dislikes_counts');
+
+                    $comment->update(['dislikes_counts' => $dislikes_on_this + 1]);
+
+
+
+            }
+
             foreach ($community_id as $com_id) {
                 $community = Community::find($com_id);
 
@@ -215,5 +256,7 @@ class MainSeeder extends Seeder
                 ]);
             }
         }
+        $this->call(FriendSeeder::class);
+
     }
 }
