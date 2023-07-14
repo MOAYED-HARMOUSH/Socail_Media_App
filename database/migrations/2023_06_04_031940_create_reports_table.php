@@ -16,6 +16,11 @@ return new class extends Migration
 
             $table->morphs('location');
 
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

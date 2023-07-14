@@ -17,6 +17,9 @@ use App\Models\Comment;
 use App\Models\Page;
 use App\Models\PageUser;
 use App\Models\Reaction;
+use App\Models\Report;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class PostController extends Controller
 {
@@ -160,9 +163,10 @@ class PostController extends Controller
         foreach ($pages_posts_ids as $value2) {
             array_push($all_posts, $value2);
         }
-
-
-        return  $this->ExtraInfo_Post($all_posts, $user);
+        return response()->json([
+            'Message' => 'success',
+            'data' => ['posts' => $this->ExtraInfo_Post($all_posts, $user)]
+        ]);
     }
 
     public function ExtraInfo_Post($ids, $user)
@@ -217,6 +221,11 @@ class PostController extends Controller
             }
             $poster = $post->user->first_name . ' ' . $post->user->last_name;
 
+            $poster_id =  $post->user->id;
+            $poster_photo = collect(Media::where('model_id', $poster_id)->where('collection_name', 'avatars')->get())->map(function ($media) {
+                return $media->getUrl();
+            })->all();
+
 
             $photos_media = $post->photos()->where('post_id', $value)->pluck('media_id');
 
@@ -229,12 +238,11 @@ class PostController extends Controller
             })->all();
 
 
-            $myArray = array_merge([$poster], [$poster_degree], [$diff], [$post], [$me], [$my_reacion]);
+            $myArray = array_merge([$poster], [$poster_photo], [$poster_degree], [$diff], [$post], [$me], [$my_reacion]);
 
             $bigarray[$value] = $myArray;
         }
-
-        return ($bigarray != null) ? $bigarray : 'you dont have posts';
+        return array_values($bigarray);
     }
     public function like_or_cancellike_on_post($id)
     {
@@ -384,6 +392,142 @@ class PostController extends Controller
             ]);
             $comment->update(['dislikes_counts' => $dislikes_on_this + 1]);
             return 'dislikes';
+        }
+    }
+    public function report_or_cancelreport_on_post(Request $request, $id)
+    {
+
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $post = Post::find($id);
+        $location_type = $post->location_type;
+        $location_id = $post->location_id;
+        $post_report = Report::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->value('id');
+        $reports_on_this = Post::where('id', $post->id)->value('reports_number');
+
+        $range = 0;
+
+        if ($location_type == 'App\Models\Community') {
+            $subscribers =  Community::where('id', $location_id)->value('subscriber_counts');
+            $range = round($subscribers / 10);
+        } else if ($location_type == 'App\Models\Page') {
+
+            $followes_counts =  Page::where('id', $location_id)->value('follower_counts');
+            $range = round($followes_counts / 20);
+        } else if ($location_type == 'App\Models\User') {
+            $friend = new FriendController;
+            $friends_ids = $friend->showFriends($request)->count();
+
+
+            $range = round($friends_ids  / 30);
+        }
+        $halfrange = round($range) / 2;
+
+
+        if ($reports_on_this + 1 == $halfrange) {
+            //notifiction
+        }
+        if ($reports_on_this + 1 == $range) {
+
+            $comment_id = Comment::where('post_id', $id)->get();
+
+            foreach ($comment_id as $value) {
+                $value->reactions()->delete();
+                $value->reports()->delete();
+            }
+
+
+            $post->delete();
+            $post->comments()->delete();
+            $post->reactions()->delete();
+            $post->reports()->delete();
+
+
+
+            //notification
+            return 'Too Many Reports .. Post_Deleted ';
+        }
+
+
+
+        if ($post_report != null) {
+            $post->update(['reports_number' => $reports_on_this - 1]);
+
+            Report::where('location_type', 'App\Models\Post')->where('location_id', $id)->where('user_id', $user->id)->delete();
+            return 'cancel_report';
+        } else if ($post_report == null) {
+            $post->reports()->create([
+                'user_id' => $user->id,
+            ]);
+            $post->update(['reports_number' => $reports_on_this + 1]);
+            return 'report';
+        }
+    }
+    public function report_or_cancelreport_on_comment(Request $request, $id)
+    {
+
+        $user = Auth::user();
+        $user = User::find($user->id);
+
+        $comment = Comment::find($id);
+        $post_id = $comment->post_id;
+        $post_location_type = Post::where('id', $post_id)->value('location_type');
+        $post_location_id = Post::where('id', $post_id)->value('location_id');
+        $range = 0;
+
+        $comment_report = Report::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->value('id');
+        $reports_on_this = Comment::where('id', $id)->value('reports_number');
+
+        if ($post_location_type == 'App\Models\Community') {
+            $subscribers =  Community::where('id', $post_location_id)->value('subscriber_counts');
+            $range = round($subscribers / 10);
+        } else if ($post_location_type == 'App\Models\Page') {
+
+            $followes_counts =  Page::where('id', $post_location_id)->value('follower_counts');
+            $range = round($followes_counts / 20);
+        } else if ($post_location_type == 'App\Models\User') {
+            $friend = new FriendController;
+            $friends_ids = $friend->showFriends($request)->count();
+
+
+            $range = round($friends_ids  / 30);
+        }
+
+
+        $halfrange = round($range) / 2;
+
+
+        if ($reports_on_this + 1 == $halfrange) {
+            //notifiction
+        }
+        if ($reports_on_this + 1 == $range) {
+
+
+
+
+            $comment->delete();
+            $comment->reactions()->delete();
+            $comment->reports()->delete();
+
+
+
+            //notification
+            return 'Too Many Reports .. comment_Deleted ';
+        }
+
+
+
+        if ($comment_report != null) {
+            $comment->update(['reports_number' => $reports_on_this - 1]);
+
+            Report::where('location_type', 'App\Models\Comment')->where('location_id', $id)->where('user_id', $user->id)->delete();
+            return 'cancel_report';
+        } else if ($comment_report == null) {
+            $comment->reports()->create([
+                'user_id' => $user->id,
+            ]);
+            $comment->update(['reports_number' => $reports_on_this + 1]);
+            return 'report';
         }
     }
 }

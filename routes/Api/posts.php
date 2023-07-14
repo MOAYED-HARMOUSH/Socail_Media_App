@@ -13,6 +13,9 @@ Route::get('get_comments_on_post/{post_id}', 'get_comments_on_post')->middleware
 Route::get('like_or_cancellike_on_comment/{comment_id}','like_or_cancellike_on_comment')->middleware(['auth:sanctum']);
 Route::get('dislike_or_canceldislike_on_comment/{comment_id}','dislike_or_canceldislike_on_comment')->middleware(['auth:sanctum']);
 
+Route::get('report_or_cancelreport_on_post/{post_id}','report_or_cancelreport_on_post')->middleware(['auth:sanctum']);
+Route::get('report_or_cancelreport_on_comment/{post_id}','report_or_cancelreport_on_comment')->middleware(['auth:sanctum']);
+
 
 Route::get('getMyPosts', 'getMyPosts')->middleware(['auth:sanctum']);
 Route::get('getMyCommuites', 'getMyCommuites')->middleware(['auth:sanctum']);
