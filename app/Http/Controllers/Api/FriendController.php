@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\User;
+use App\Notifications\FriendRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -9,17 +11,26 @@ class FriendController extends Controller
 {
     public function send(Request $request)
     {
+        if ($request->user()->id == $request->id)
+            return 'You Can\'t Send Friend Request to yourself';
+
         $received = $request->user()->receivers()->where('friends.sender', $request->id)->first();
 
-        if (empty($received)) {
-            $request->user()->senders()->attach($request->us_id);
-            return 'sent';
-        } else {
+        if ($received == null) {
+            $request->user()->senders()->attach($request->id);
+            // TODO : Send Notification to Receiver
+
+            $receiver = User::find($request->id);
+            $receiver->notify(
+                new FriendRequest(
+                    true,
+                    $request->user()->name
+                )
+            );
+        } else
             return response()->json([
                 'Message' => 'You have request from this user'
             ]);
-        }
-        //Send Notification to Receiver
 
         return response()->json(['Message' => 'Success']);
     }
@@ -31,6 +42,8 @@ class FriendController extends Controller
             ->whereNull('friends.is_approved')
             ->detach($request->id);
 
+        // TODO : Delete Notification From Database.
+
         return response()->json([
             'Message' => 'success'
         ]);
@@ -39,10 +52,18 @@ class FriendController extends Controller
     public function accept(Request $request)
     {
         $request->user()->receivers()
-            ->where('friends.sender', $request->us_id)
+            ->where('friends.sender', $request->id)
             ->update(['is_approved' => true]);
 
-        //Send Notification to Sender
+        // TODO : Send Notification to Sender
+
+        $sender = User::find($request->id);
+        $sender->notify(
+            new FriendRequest(
+                false,
+                $request->user()->name
+            )
+        );
 
         return response()->json(['Message' => 'Success']);
     }
@@ -50,28 +71,38 @@ class FriendController extends Controller
     public function reject(Request $request)
     {
         $request->user()->receivers()
-            ->where('friends.id', $request->id)
+            ->where('friends.sender', $request->id)
             ->update(['is_approved' => false]);
-
-        //Send Notification to Sender
 
         return response()->json(['Message' => 'Success']);
     }
 
-    public function showRejectedRequests(Request $request)
+    public function showRefusedRequests(Request $request)
     {
-        $rejected_request = $request->user()->senders()->where('friends.is_approved', false)->get();
+        $refused_request = $request->user()->receivers()->where('friends.is_approved', false)->get();
+
+        foreach ($refused_request as $value) {
+            $value->setAppends(['period_receiver']);
+        }
 
         return response()->json([
             'Message' => 'success',
-            'Requests' => $rejected_request
+            'Requests' => $refused_request
         ]);
     }
 
-    public  function showFriends(Request $request)
+    public function showFriends(Request $request)
     {
         $received_friends = $request->user()->receivers()->where('friends.is_approved', true)->get();
         $sent_friends = $request->user()->senders()->where('friends.is_approved', true)->get();
+
+        foreach ($received_friends as $value) {
+            $value->setAppends(['period_receiver']);
+        }
+
+        foreach ($sent_friends as $value) {
+            $value->setAppends(['period_sender']);
+        }
 
         $friends = $received_friends->concat($sent_friends);
 
@@ -90,7 +121,11 @@ class FriendController extends Controller
     {
         $receiver_request = $request->user()->receivers()->whereNull('friends.is_approved')->get();
 
-        //Delete Notification from Database
+        foreach ($receiver_request as $value) {
+            $value->setAppends(['period_receiver']);
+        }
+
+        // TODO : Delete Notification from Database
 
         return response()->json([
             'Message' => 'success',
@@ -101,6 +136,10 @@ class FriendController extends Controller
     public function showSenderRequest(Request $request)
     {
         $sender_request = $request->user()->senders()->whereNull('friends.is_approved')->get();
+
+        foreach ($sender_request as $value) {
+            $value->setAppends(['period_sender']);
+        }
 
         return response()->json([
             'Message' => 'success',

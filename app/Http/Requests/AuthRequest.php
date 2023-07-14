@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AuthRequest extends FormRequest
@@ -87,19 +88,19 @@ class AuthRequest extends FormRequest
             'Scala',
         ];
         return [
-            // 'first_name' => 'bail|required|string|alpha',
-            // 'last_name' => 'bail|required|string|alpha',
-            // 'email' => 'bail|required|email',
-            // 'password' => 'bail|required|confirmed|string|min:8',
+            'first_name' => 'bail|required|string|alpha',
+            'last_name' => 'bail|required|string|alpha',
+            'email' => 'bail|required|string|email|max:255|unique:users',
+            'password' => ['required', 'confirmed', Password::defaults()],
             // 'image' => 'bail|nullable|image|mimes:jpg,bmp,png,svg,jpeg',
-            // 'current_location' => 'bail|required|string',
-            // 'gender' => 'bail|required|in:male,female',
+            'current_location' => 'bail|required|string',
+            'gender' => 'bail|required|in:male,female',
             'birth_date' => "bail|required|date|before_or_equal:$date",
             'programming_age' => "bail|required|date|before_or_equal:$date",
-            // 'specialty' => ['bail', 'required', Rule::in($specialty)],
-            // 'language' => ['bail', 'required', Rule::in($language)],
-            // 'framework' => ['bail', 'required', Rule::in($framework)],
-            // 'section' => ['bail', 'required', Rule::in($section)]
+            'specialty' => ['bail', 'required', Rule::in($specialty)],
+            'language' => ['bail', 'required', Rule::in($language)],
+            'framework' => ['bail', 'required', Rule::in($framework)],
+            'section' => ['bail', 'required', Rule::in($section)]
         ];
     }
 }

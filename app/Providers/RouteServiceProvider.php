@@ -2,11 +2,15 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\FavoritePostController;
+use App\Http\Controllers\Api\FollowPageController;
 use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\InviteController;
+use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -23,7 +27,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HOME = '/home';
+    public const HOME = '/dashboard';
 
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
@@ -44,8 +48,15 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::name('auth.')
                 ->middleware('api')
+                ->controller(AuthController::class)
                 ->prefix('api/auth')
                 ->group(base_path('routes/Api/auth.php'));
+
+            Route::name('auth.reset-password')
+                ->middleware('api')
+                ->controller(ResetPasswordController::class)
+                ->prefix('api/auth/password')
+                ->group(base_path('routes/Api/auth.resetpassword.php'));
 
             Route::name('users.')
                 ->middleware(['api', 'auth:sanctum'])
@@ -86,7 +97,14 @@ class RouteServiceProvider extends ServiceProvider
             Route::name('pages.')
                 ->middleware(['api', 'auth:sanctum'])
                 ->prefix('api/pages')
+                ->controller(PageController::class)
                 ->group(base_path('routes/Api/pages.php'));
+
+            Route::name('pages.following')
+                ->middleware(['api', 'auth:sanctum'])
+                ->prefix('api/pages/following')
+                ->controller(FollowPageController::class)
+                ->group(base_path('routes/Api/follow.pages.php'));
         });
     }
 }

@@ -12,12 +12,7 @@ return new class extends Migration {
     {
         Schema::create('specialties', function (Blueprint $table) {
             $table->id();
-            $table->text('specialty', [
-                'AI',
-                'Software',
-                'Cyber_Security',
-                'Network'
-            ]);
+            $table->text('specialty');
             $table->set('section', [
                 'Frontend',
                 'Backend',

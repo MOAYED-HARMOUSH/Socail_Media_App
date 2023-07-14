@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Friend extends Pivot
@@ -16,11 +15,11 @@ class Friend extends Pivot
 
     public function senders()
     {
-        return $this->belongsTo(User::class,'sender');
+        return $this->belongsTo(User::class, 'sender');
     }
 
     public function receivers()
     {
-        return $this->belongsTo(User::class,'receiver');
+        return $this->belongsTo(User::class, 'receiver');
     }
 }

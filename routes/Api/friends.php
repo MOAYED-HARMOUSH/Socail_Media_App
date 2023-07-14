@@ -14,6 +14,6 @@ Route::get('request/receiver/show','showReceiverRequest');
 
 Route::get('request/sender/show','showSenderRequest');
 
-Route::get('request/rejected/show','showRejectedRequests');
+Route::get('request/refused/show','showRefusedRequests');
 
 Route::get('show','returnFriends');

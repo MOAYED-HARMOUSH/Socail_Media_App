@@ -10,7 +10,6 @@ use App\Models\Expert;
 use App\Models\Student;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
-use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -24,7 +23,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
 
-        event(new Registered($user)); //2
+        // event(new Registered($user)); //2
 
         $user->specialty()->create($request->all());
 
