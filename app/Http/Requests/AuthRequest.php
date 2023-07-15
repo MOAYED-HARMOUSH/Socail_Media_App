@@ -24,8 +24,9 @@ class AuthRequest extends FormRequest
      */
     public function rules(): array
     {
-        $date = now()->subYears(2);
-        $programming_age = Carbon::parse($this->programming_age)->subYears(10);
+        $now = now();
+        $programming_age = Carbon::parse($this->programming_age)->subYears(12);
+
         $specialty = ['AI', 'Software', 'Cyber Security', 'Network'];
         $section = [
             'Frontend',
@@ -97,8 +98,8 @@ class AuthRequest extends FormRequest
             // 'image' => 'bail|nullable|image|mimes:jpg,bmp,png,svg,jpeg',
             // 'current_location' => 'bail|required|string',
             // 'gender' => 'bail|required|in:male,female',
-            'birth_date' => "bail|required|date|before_or_equal:$date|before:$programming_age",
-            'programming_age' => "bail|required|date|before_or_equal:$date",
+            'birth_date' => "bail|required|date|before_or_equal:$programming_age",
+            'programming_age' => "bail|required|date|before_or_equal:$now",
             // 'specialty' => ['bail', 'required', Rule::in($specialty)],
             // 'language' => ['bail', 'required', Rule::in($language)],
             // 'framework' => ['bail', 'required', Rule::in($framework)],

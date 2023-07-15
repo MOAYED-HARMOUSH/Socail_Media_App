@@ -2,8 +2,11 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use Carbon\Carbon;
+use App\Models\User;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
@@ -16,18 +19,27 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $genders = ['male', 'female'];
+        $gender = $genders[rand(0, 1)];
+
+        $programming_age = fake()->dateTimeBetween();
+        $birth_date = Carbon::parse($programming_age)->subYears(rand(12, 20));
 
         return [
-            'first_name' => fake()->firstName(),
+            'first_name' => fake()->firstName($gender),
             'last_name' => fake()->lastname(),
-            'current_location' => fake()->name(),
-            'programming_age'=>fake()->date(),
-            'birth_date'=>fake()->date(),
-            'email' => fake()->unique()->safeEmail(),
-            'gender'=>'male',
-
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'user_identifier' => fake()->unique()->userName(),
+            'gender' => $gender,
+            'phone_number' => fake()->unique()->phoneNumber(),
+            'bio' => fake()->realText(),
             'remember_token' => Str::random(10),
+            'current_location' => fake()->country(),
+            'country' => fake()->country(),
+            'programming_age' => $programming_age,
+            'birth_date' => $birth_date,
+            'email' => fake()->unique()->safeEmail(),
+            'password' => fake()->password(8),
+            'email_verified_at' => now()
         ];
     }
 
@@ -36,7 +48,7 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
