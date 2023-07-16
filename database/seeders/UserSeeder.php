@@ -13,12 +13,13 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = User::factory()
-            ->count(10)
+        $senders = User::factory()
+            ->count(5)
+            ->hasSenders()
             ->create();
 
-        foreach ($users as $user) {
-            $user->copyMedia('C:\Users\yesma\OneDrive\Desktop\-5983087055229533098_121.jpg')
+        foreach ($senders as $sender) {
+            $sender->copyMedia('C:\Users\yesma\OneDrive\Desktop\-5983087055229533098_121.jpg')
                 ->toMediaCollection('avatar');
         }
     }
