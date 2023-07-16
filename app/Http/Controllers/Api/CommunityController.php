@@ -15,7 +15,7 @@ class CommunityController extends Controller
      * @param \App\Models\User $user
      * @return void
      */
-    public static function addUserToCommunity(Request $request, User $user)
+    public static function addUserToCommunity($request, User $user)
     {
         $communities_names = array_merge(
             [$request->specialty],

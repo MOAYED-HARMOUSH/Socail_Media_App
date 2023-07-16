@@ -4,7 +4,9 @@ namespace Database\Factories;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Community;
 use Illuminate\Support\Str;
+use App\Http\Controllers\Api\CommunityController;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -51,5 +53,27 @@ class UserFactory extends Factory
         return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (User $user) {
+            // ...
+        })->afterCreating(function (User $user) {
+
+            $user->copyMedia('C:\Users\yesma\OneDrive\Desktop\-5983087055229533098_121.jpg')
+                ->toMediaCollection('avatar');
+
+            $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
+
+            $specialty = $user->specialty()->first();
+
+            CommunityController::addUserToCommunity($specialty, $user);
+
+            echo $token . PHP_EOL;
+        });
     }
 }
