@@ -91,7 +91,7 @@ class AuthRequest extends FormRequest
             'first_name' => 'bail|required|string|alpha',
             'last_name' => 'bail|required|string|alpha',
             'email' => 'bail|required|string|email|max:255|unique:users',
-            'password' => ['required', 'confirmed', Password::defaults()],
+          //  'password' => ['required', 'confirmed', Password::defaults()],
             // 'image' => 'bail|nullable|image|mimes:jpg,bmp,png,svg,jpeg',
             'current_location' => 'bail|required|string',
             'gender' => 'bail|required|in:male,female',

@@ -96,13 +96,13 @@ class FriendController extends Controller
         $received_friends = $request->user()->receivers()->where('friends.is_approved', true)->get();
         $sent_friends = $request->user()->senders()->where('friends.is_approved', true)->get();
 
-        foreach ($received_friends as $value) {
-            $value->setAppends(['period_receiver']);
-        }
+        // foreach ($received_friends as $value) {
+        //     $value->setAppends(['period_receiver']);
+        // }
 
-        foreach ($sent_friends as $value) {
-            $value->setAppends(['period_sender']);
-        }
+        // foreach ($sent_friends as $value) {
+        //     $value->setAppends(['period_sender']);
+        // }
 
         $friends = $received_friends->concat($sent_friends);
 

@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('share_posts', function (Blueprint $table) {
+         Schema::create('share_posts', function (Blueprint $table) {
             $table->id();
-            
+
             $table->foreignId('current_post')
                 ->constrained('posts')
                 ->cascadeOnUpdate()

@@ -14,15 +14,22 @@ use App\Models\Community;
 use App\Models\CommunityUser;
 use App\Http\Controllers\Api\FriendController;
 use App\Models\Comment;
+use App\Models\counterpost;
 use App\Models\Page;
 use App\Models\PageUser;
 use App\Models\Reaction;
 use App\Models\Report;
+use App\Models\SharePost;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
+use PhpParser\Node\Stmt\Return_;
+use PHPUnit\Framework\Constraint\Count;
+use SebastianBergmann\LinesOfCode\Counter;
 
 class PostController extends Controller
 {
+
+
 
     public function create_from_profile(Request $request)
     { // on home page
@@ -94,7 +101,11 @@ class PostController extends Controller
 
     public function getallposts()
     {
-        return Post::all();
+        return   $posts = Post::all();
+        $collection = collect($posts);
+
+        // ترتيب المنشورات بناءً على 'created_at' بشكل تنازلي
+        return   $sorted_posts = $collection->sortByDesc('created_at');
     }
     public function getMyCommuites()
     {
@@ -134,10 +145,26 @@ class PostController extends Controller
         $message = 'created ';
     }
 
-    public function gethomeposts(Request $request)
+    public  function gethomeposts(Request $request)
     {
+
         $user = Auth::user();
         $user = User::find($user->id);
+        $l = counterpost::where('user_id', $user->id)->value('counter_post');
+
+        if ($l == 0) {
+            counterpost::create([
+                'counter_post' => $l + 1,
+                'user_id' => $user->id
+            ]);
+        } else {
+            $count = counterpost::where('user_id', $user->id)->update([
+                'counter_post' => $l + 1
+            ]);
+        }
+
+        $v =   counterpost::where('user_id', $user->id)->value('counter_post');
+
 
         $communites_ids = ($this->getMyCommuites())->pluck('id');
         $communites_posts_ids =  post::where('location_type', 'App\Models\Community')
@@ -163,9 +190,36 @@ class PostController extends Controller
         foreach ($pages_posts_ids as $value2) {
             array_push($all_posts, $value2);
         }
+        $posts = $this->ExtraInfo_Post($all_posts, $user);
+
+        $collection = collect($posts);
+
+        $sorted_posts = $collection->sortByDesc('created_at');
+
+        $valueall = [];
+        foreach ($posts as  $value) {
+            $po = $value[4];
+
+            $valueall[] = $po;
+        }
+
+        $sorted_posts = collect($valueall)->sortByDesc('created_at');
+        $so = $sorted_posts->pluck('id');
+        // foreach ($so as $ke) {
+        //     $vk[] = $ke;
+        // }
+        // $vk;
+        $gg = $this->ExtraInfo_Post($so, $user);
+
+        $first_fifteen = array_slice($gg, ($v - 1) * 15, 15);
+        if ($first_fifteen == null) {
+            $count = counterpost::where('user_id', $user->id)->delete();
+
+            return 'end posts >> referssh';
+        }
         return response()->json([
             'Message' => 'success',
-            'data' => ['posts' => $this->ExtraInfo_Post($all_posts, $user)]
+            'data' => ['posts' => $first_fifteen]
         ]);
     }
 
@@ -173,74 +227,96 @@ class PostController extends Controller
     {
         $bigarray = array();
 
+        $user_degree = $user->expert()->pluck('years_as_expert')->first();
+
         foreach ($ids as  $value) {
+            $post_type = Post::where('id', $value)->first()->type;
 
 
-            $post_time = Post::where('id', $value)->first()->created_at;
+            if ($post_type != 'Story') {
+                // if ($user_degree == null) {
+                //     if ($post_type != 'Challenge') {
 
 
-            $post = post::where('id', $value)->first();
-            $myreaction_on_this =  Reaction::where('location_type', 'App\Models\Post')
-                ->where('location_id', $value)->where('user_id', $user->id)->value('type');
 
-            if ($myreaction_on_this != null) {
-                $my_reacion = 'my _reaction_on_this_post is ' . $myreaction_on_this;
-            } else
-                $my_reacion = 'you have no reaction on this post ';
-            $t = $post->user;
-
-            $poster_degree1 = $t->student()->pluck('study_semester')->first();
-
-            $poster_degree2 = $t->expert()->pluck('years_as_expert')->first();
-
-            if (empty($poster_degree1) && empty($poster_degree2)) {
-                $poster_degree = 'amateur';
-            } else if (!empty($poster_degree1) && empty($poster_degree2)) {
-                $poster_degree = $poster_degree1;
-            } else if (empty($poster_degree1) && !empty($poster_degree2)) {
-                $poster_degree = $poster_degree2;
-            } else if (!empty($poster_degree1) && !empty($poster_degree2))
-                $poster_degree = $poster_degree1 . '_ ' . 'years_as_expert = ' . $poster_degree2;
-
-            $old_datetime = Carbon::parse($post_time)->format('Y-m-d H:i');
-            $day_name = date('l', strtotime($post_time));
-
-            $now = Carbon::now();
+                $post_time = Post::where('id', $value)->first()->created_at;
 
 
-            if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 48) {
-                $diff = 'yestarday at : ' . Carbon::parse($post_time)->format(' h:i A');
-            } else if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 168) {
-                $diff = $day_name . ' at :' .  Carbon::parse($post_time)->format(' h:i A');
-            } else if ($now->diffInHours($old_datetime) > 24) {
-                $diff = Carbon::parse($old_datetime)->format('Y-m-d h:i A');
-            } else if ($now->diffInMinutes($old_datetime) < 60) {
-                $diff = $now->diffInMinutes($old_datetime) . ' minutes ago';
-            } else {
-                $diff = $now->diffInHours($old_datetime) . ' hours ago';
+                $post = post::where('id', $value)->first();
+
+                $share = SharePost::where('current_post', $post->id)->value('shared_post');
+
+                $shared_post = Post::where('id', $share)->first();
+                if ($shared_post != null) {
+                    $shared_post_user = $shared_post->user;
+                    $shared =  $this->ExtraInfo_Post([$share], $shared_post_user);
+                } else {
+                    $shared = null;
+                }
+
+                $myreaction_on_this =  Reaction::where('location_type', 'App\Models\Post')
+                    ->where('location_id', $value)->where('user_id', $user->id)->value('type');
+
+                if ($myreaction_on_this != null) {
+                    $my_reacion = 'my _reaction_on_this_post is ' . $myreaction_on_this;
+                } else
+                    $my_reacion = 'you have no reaction on this post ';
+                $t = $post->user;
+
+                $poster_degree1 = $t->student()->pluck('study_semester')->first();
+
+                $poster_degree2 = $t->expert()->pluck('years_as_expert')->first();
+
+                if (empty($poster_degree1) && empty($poster_degree2)) {
+                    $poster_degree = 'amateur';
+                } else if (!empty($poster_degree1) && empty($poster_degree2)) {
+                    $poster_degree = $poster_degree1;
+                } else if (empty($poster_degree1) && !empty($poster_degree2)) {
+                    $poster_degree = $poster_degree2;
+                } else if (!empty($poster_degree1) && !empty($poster_degree2))
+                    $poster_degree = $poster_degree1 . '_ ' . 'years_as_expert = ' . $poster_degree2;
+
+                $old_datetime = Carbon::parse($post_time)->format('Y-m-d H:i');
+                $day_name = date('l', strtotime($post_time));
+
+                $now = Carbon::now();
+
+
+                if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 48) {
+                    $diff = 'yestarday at : ' . Carbon::parse($post_time)->format(' h:i A');
+                } else if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 168) {
+                    $diff = $day_name . ' at :' .  Carbon::parse($post_time)->format(' h:i A');
+                } else if ($now->diffInHours($old_datetime) > 24) {
+                    $diff = Carbon::parse($old_datetime)->format('Y-m-d h:i A');
+                } else if ($now->diffInMinutes($old_datetime) < 60) {
+                    $diff = $now->diffInMinutes($old_datetime) . ' minutes ago';
+                } else {
+                    $diff = $now->diffInHours($old_datetime) . ' hours ago';
+                }
+                $poster = $post->user->first_name . ' ' . $post->user->last_name;
+
+                $poster_id =  $post->user->id;
+                $poster_photo = collect(Media::where('model_id', $poster_id)->where('collection_name', 'avatars')->get())->map(function ($media) {
+                    return $media->getUrl();
+                })->all();
+
+
+                $photos_media = $post->photos()->where('post_id', $value)->pluck('media_id');
+
+                $videos_media = $post->videos()->where('post_id', $value)->pluck('media_id');
+
+                $arr = $photos_media->merge($videos_media);
+
+                $me = collect(Media::whereIn('id', $arr)->get())->map(function ($media) {
+                    return $media->getUrl();
+                })->all();
+
+                $myArray = array_merge([$poster], [$poster_photo], [$poster_degree], [$diff], [$post], [$me], [$my_reacion], [$shared]);
+
+                $bigarray[$value] = $myArray;
             }
-            $poster = $post->user->first_name . ' ' . $post->user->last_name;
-
-            $poster_id =  $post->user->id;
-            $poster_photo = collect(Media::where('model_id', $poster_id)->where('collection_name', 'avatars')->get())->map(function ($media) {
-                return $media->getUrl();
-            })->all();
-
-
-            $photos_media = $post->photos()->where('post_id', $value)->pluck('media_id');
-
-            $videos_media = $post->videos()->where('post_id', $value)->pluck('media_id');
-
-            $arr = $photos_media->merge($videos_media);
-
-            $me = collect(Media::whereIn('id', $arr)->get())->map(function ($media) {
-                return $media->getUrl();
-            })->all();
-
-
-            $myArray = array_merge([$poster], [$poster_photo], [$poster_degree], [$diff], [$post], [$me], [$my_reacion]);
-
-            $bigarray[$value] = $myArray;
+            //         }
+            //      }
         }
         return array_values($bigarray);
     }
@@ -529,5 +605,106 @@ class PostController extends Controller
             $comment->update(['reports_number' => $reports_on_this + 1]);
             return 'report';
         }
+    }
+    public function share_post_1(Request $request)
+    {
+
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $my_com =  $this->getMyCommuites();
+        $my_own_page = $request->user()->pages()->find($user->id);
+        //  return [[$my_com],$my_own_page];
+        if ($my_own_page != null)
+            return response()->json([
+                'Message' => 'success',
+                'Communites' => $my_com,
+                'Pages' => [$my_own_page],
+                'my_profile' => $user
+            ]);
+    }
+    public function share_post_2(Request $request, $post_id, $location_id)
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
+
+        $place_type = $request->place_type;
+        $location_type = '';
+
+        if ($place_type == 'community') {
+            $community = Community::find($location_id);
+            $post = $community->posts()->create([
+                'title' => $request->title,
+                'content' => $request->content,
+                'type' => $request->type,
+                'user_id' => $user->id
+            ]);
+        } else if ($place_type == 'page') {
+
+
+            $page = Page::find($location_id);
+
+            $post = $page->posts()->create([
+                'title' => $request->title,
+                'content' => $request->content,
+                'type' => $request->type,
+                'user_id' => $user->id
+            ]);
+        } else if ($place_type == 'profile') {
+            $post = $user->locationPosts()->create([
+                'title' => $request->title,
+                'content' => $request->content,
+                'type' => $request->type,
+                'user_id' => $user->id
+            ]);
+        }
+
+        $share =     SharePost::create([
+            'shared_post' => $post_id,
+            'current_post' => $post->id
+        ]);
+        return    $share;
+    }
+    public function avtive_stories(Request $request)
+    {
+
+        $user = Auth::user();
+        $user = User::find($user->id);
+
+
+        $friend = new FriendController;
+        $friends_ids = $friend->showFriends($request)->pluck('id');
+
+        $users = Post::whereIn('user_id', $friends_ids)->where('type', 'Story')->pluck('user_id');
+
+        $storyies_time = Post::whereIn('user_id', $friends_ids)->where('type', 'Story')->pluck('created_at');
+
+        $arr = [];
+        foreach ($storyies_time as $key) {
+            $old_datetime = Carbon::parse($key)->format('Y-m-d H:i');
+            if (now()->diffInHours($old_datetime) <= 24) {
+                $arr[] = $key;
+            }
+        }
+        $arr2 = [];
+        foreach ($arr as $final) {
+            $new_datetime = $final->toISOString();
+            $arr2[] = $new_datetime;
+        }
+
+
+        $users = Post::whereIn('user_id', $friends_ids)->where('type', 'Story')->whereIn('created_at', $arr2)->pluck('user_id');
+
+
+
+        $active_sroties = collect(Media::whereIn('model_id', $users)->where('collection_name', 'avatars')->get())->map(function ($media) {
+            return $media->getUrl();
+        })->all();
+        return response()->json([
+            'data' => $active_sroties
+        ]);
+    }
+    public function showstory()  {
+
+            
     }
 }

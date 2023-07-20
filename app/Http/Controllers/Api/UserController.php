@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Database\Seeders\MainSeeder;
 use Illuminate\Database\Seeder;
-
+use App\Models\counterpost;
 class UserController extends Controller
 {
     public function getAvatar(Request $request) //for Test Only
@@ -41,6 +41,7 @@ class UserController extends Controller
 
     public function createRandomUsers($count)
     {
+         
         $factory = User::factory();
 
         for ($i = 0; $i < $count; $i++) {

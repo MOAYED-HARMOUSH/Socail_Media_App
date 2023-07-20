@@ -95,6 +95,10 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
     {
         return $this->hasMany(Report::class);
     }
+    public function counters(): HasMany
+    {
+        return $this->hasMany(counterpost::class);
+    }
 
     public function favoritePosts(): BelongsToMany
     {

@@ -17,6 +17,12 @@ Route::get('report_or_cancelreport_on_post/{post_id}','report_or_cancelreport_on
 Route::get('report_or_cancelreport_on_comment/{post_id}','report_or_cancelreport_on_comment')->middleware(['auth:sanctum']);
 
 
+
+Route::get('share_post_1', 'share_post_1')->middleware(['auth:sanctum']);
+Route::post('share_post_2/{post_id}/{location_id}', 'share_post_2')->middleware(['auth:sanctum']);
+
+Route::get('avtive_stories', 'avtive_stories')->middleware(['auth:sanctum']);
+
 Route::get('getMyPosts', 'getMyPosts')->middleware(['auth:sanctum']);
 Route::get('getMyCommuites', 'getMyCommuites')->middleware(['auth:sanctum']);
 Route::get('getMyPagesasfollow', 'getMyPagesasfollow')->middleware(['auth:sanctum']);
