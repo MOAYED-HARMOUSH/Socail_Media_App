@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Auth\Events\Registered;
 use App\Providers\RouteServiceProvider;
+use App\Http\Controllers\Api\CommunityController;
 
 class RegisteredUserController extends Controller
 {
@@ -29,15 +30,17 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(AuthRequest $request): RedirectResponse
+    public function store(AuthRequest $request)
     {
-        // $user = User::create([
-        //     'name' => $request->name,
-        //     'email' => $request->email,
-        //     'password' => Hash::make($request->password),
-        // ]);
-
         $user = User::create($request->all());
+
+        if ($request->hasFile('image')) {
+            $user->addMediaFromRequest('image')->toMediaCollection('avatars');
+        }
+
+        $user->specialty()->create($request->all());
+
+        CommunityController::addUserToCommunity($request, $user);
 
         event(new Registered($user));
 

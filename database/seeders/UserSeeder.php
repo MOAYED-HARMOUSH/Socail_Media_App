@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class UserSeeder extends Seeder
 {
@@ -12,10 +13,15 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // DB::table('communities')->insert([
-        //     'name' => $name[$i] . ' Space',
-        //     'created_at' => now(),
-        //     'updated_at' => now()
-        // ]);
+        $senders = User::factory()
+            ->count(5)
+            ->hasSpecialty()
+            ->has(
+                User::factory()
+                    ->count(3)
+                    ->hasSpecialty(),
+                'senders'
+            )
+            ->create();
     }
 }

@@ -111,6 +111,8 @@ class FriendController extends Controller
 
     public function returnFriends(Request $request)
     {
+        // return view('friend.show', ['friends' => $this->showFriends($request)]);
+
         return response()->json([
             'Message' => 'Success',
             'friends' => $this->showFriends($request)
@@ -124,6 +126,8 @@ class FriendController extends Controller
         foreach ($receiver_request as $value) {
             $value->setAppends(['period_receiver']);
         }
+
+        // return view('friend.request.receiver', ['Requests' => $receiver_request]);
 
         // TODO : Delete Notification from Database
 

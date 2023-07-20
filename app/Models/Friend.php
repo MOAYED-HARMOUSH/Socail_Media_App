@@ -13,6 +13,8 @@ class Friend extends Pivot
         'id'
     ];
 
+    protected $table='friends';
+
     public function senders()
     {
         return $this->belongsTo(User::class, 'sender');
