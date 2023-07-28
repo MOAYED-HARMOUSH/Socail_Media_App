@@ -26,6 +26,8 @@ use PhpParser\Node\Stmt\Return_;
 use PHPUnit\Framework\Constraint\Count;
 use SebastianBergmann\LinesOfCode\Counter;
 
+use function PHPUnit\Framework\isNull;
+
 class PostController extends Controller
 {
 
@@ -223,8 +225,10 @@ class PostController extends Controller
         ]);
     }
 
-    public function ExtraInfo_Post($ids, $user)
+    public function ExtraInfo_Post($ids, $user ,$ifstories=null)
     {
+       // $can=0;
+
         $bigarray = array();
 
         $user_degree = $user->expert()->pluck('years_as_expert')->first();
@@ -233,7 +237,9 @@ class PostController extends Controller
             $post_type = Post::where('id', $value)->first()->type;
 
 
-            if ($post_type != 'Story') {
+            if ($post_type != 'Story' || $ifstories == 'story') {
+
+
                 // if ($user_degree == null) {
                 //     if ($post_type != 'Challenge') {
 
@@ -319,6 +325,17 @@ class PostController extends Controller
             //      }
         }
         return array_values($bigarray);
+        // return response()->json([
+        //     'Message' => 'success',
+        //     'poster' => ['posts' => $poster],
+        //     'poster_photo' => ['posts' => $poster_photo],
+        //     'poster_degree' => ['posts' => $poster_degree],
+        //     'diff' => ['posts' => $diff],
+        //     'post' => ['posts' => $post],
+        //     'me' => ['posts' => $me],
+        //     'my_reacion' => ['posts' => $my_reacion],
+        //     'shared' => ['posts' => $shared],
+        // ]);
     }
     public function like_or_cancellike_on_post($id)
     {
@@ -685,26 +702,51 @@ class PostController extends Controller
                 $arr[] = $key;
             }
         }
-        $arr2 = [];
-        foreach ($arr as $final) {
-            $new_datetime = $final->toISOString();
-            $arr2[] = $new_datetime;
+        // $arr2 = [];
+        // foreach ($arr as $final) {
+        //     $new_datetime = $final->toISOString();
+        //     $arr2[] = $new_datetime;
+        // }
+
+
+        $users = Post::whereIn('user_id', $friends_ids)->where('type', 'Story')->whereIn('created_at', $arr)->pluck('user_id')->toArray();
+        $all = array_unique($users);
+
+        $active = [];
+
+
+        foreach ($all as  $value) {
+            $id = $value;
+            $active_sroties = collect(Media::where('model_id', $value)->where('collection_name', 'avatars')->get())->map(function ($media) {
+                return   $medi = $media->getUrl();
+            });
+            $active[] = [$id, $active_sroties];
         }
-
-
-        $users = Post::whereIn('user_id', $friends_ids)->where('type', 'Story')->whereIn('created_at', $arr2)->pluck('user_id');
-
-
-
-        $active_sroties = collect(Media::whereIn('model_id', $users)->where('collection_name', 'avatars')->get())->map(function ($media) {
-            return $media->getUrl();
-        })->all();
         return response()->json([
-            'data' => $active_sroties
+            'data' => $active,
         ]);
     }
-    public function showstory()  {
+    public function showstory(Request $request,$id)
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
 
-            
+        $storyies_time = Post::where('user_id', $id)->where('type', 'Story')->pluck('created_at');
+
+        foreach ($storyies_time as $key) {
+            $old_datetime = Carbon::parse($key)->format('Y-m-d H:i');
+            if (now()->diffInHours($old_datetime) <= 24) {
+                $arr[] = $key;
+            }
+        }
+        // $arr2 = [];
+        // foreach ($arr as $final) {
+        //     $new_datetime = $final->toISOString();
+        //     $arr2[] = $new_datetime;
+        // }
+        //  return $arr2;
+         $storyies = Post::where('user_id', $id)->where('type', 'Story')->whereIn('created_at', $arr)->pluck('id')->toArray();
+           return $this->ExtraInfo_Post($storyies,$user,'story');
+        return $arr;
     }
 }
