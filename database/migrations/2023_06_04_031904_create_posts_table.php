@@ -31,11 +31,16 @@ return new class extends Migration
                 ->default(0)
                 ->unsigned();
 
+
             $table->bigInteger('dislikes_counts')
                 ->default(0)
                 ->unsigned();
 
             $table->integer('reports_number')
+                ->default(0)
+                ->unsigned();
+                
+                $table->biginteger('Approvals_counter')
                 ->default(0)
                 ->unsigned();
 

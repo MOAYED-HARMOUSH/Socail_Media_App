@@ -26,7 +26,7 @@ class Page extends Model implements HasMedia
 
     public function memberUsers(): BelongsToMany
     {
-        return $this->belongsToMany(Community::class);
+        return $this->belongsToMany(Page::class);
     }
 
     public function posts(): MorphMany

@@ -16,6 +16,8 @@ Route::get('dislike_or_canceldislike_on_comment/{comment_id}','dislike_or_cancel
 Route::get('report_or_cancelreport_on_post/{post_id}','report_or_cancelreport_on_post')->middleware(['auth:sanctum']);
 Route::get('report_or_cancelreport_on_comment/{post_id}','report_or_cancelreport_on_comment')->middleware(['auth:sanctum']);
 
+Route::get('agree_or_cancelagree_challenge/{post_id}','agree_or_cancelagree_challenge')->middleware(['auth:sanctum']);
+
 
 
 Route::get('share_post_1', 'share_post_1')->middleware(['auth:sanctum']);
