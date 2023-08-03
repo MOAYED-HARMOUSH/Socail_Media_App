@@ -21,29 +21,21 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $genders = ['male', 'female'];
-        $gender = $genders[rand(0, 1)];
-
-        $programming_age = fake()->dateTimeBetween();
-        $birth_date = Carbon::parse($programming_age)->subYears(rand(12, 20));
 
         return [
-            'first_name' => fake()->firstName($gender),
+           // 'name' => fake()->name(),
+            'first_name' => fake()->firstName(),
             'last_name' => fake()->lastname(),
-            'user_identifier' => fake()->unique()->userName(),
-            'gender' => $gender,
-            'phone_number' => fake()->unique()->phoneNumber(),
-            'bio' => fake()->realText(),
-            'remember_token' => Str::random(10),
-            'current_location' => fake()->country(),
-            'country' => fake()->country(),
-            'programming_age' => $programming_age,
-            'birth_date' => $birth_date,
+            'current_location' => fake()->name(),
+            'programming_age'=>fake()->date(),
+            'birth_date'=>fake()->date(),
             'email' => fake()->unique()->safeEmail(),
-            'password' => fake()->password(8),
-            'email_verified_at' => now()
-        ];
-    }
+            'email_verified_at' => now(),
+            'gender'=>'male',
+
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'remember_token' => Str::random(10),
+        ];}
 
     /**
      * Indicate that the model's email address should be unverified.
@@ -58,20 +50,20 @@ class UserFactory extends Factory
     /**
      * Configure the model factory.
      */
-    public function configure(): static
-    {
-        return $this->afterMaking(function (User $user) {
-            // ...
-        })->afterCreating(function (User $user) {
+    // public function configure(): static
+    // {
+    //     return $this->afterMaking(function (User $user) {
+    //         // ...
+    //     })->afterCreating(function (User $user) {
 
-            $user->copyMedia('C:\Users\yesma\OneDrive\Desktop\-5983087055229533098_121.jpg')
-                ->toMediaCollection('avatar');
+    //         $user->copyMedia('C:\Users\Admin\Desktop\photo_2023-07-15_11-10-12.jpg')
+    //             ->toMediaCollection('avatar');
 
-            $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
+    //         $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
 
-            $specialty = $user->specialty()->first();
+    //         $specialty = $user->specialty()->first();
 
-            CommunityController::addUserToCommunity($specialty, $user);
+    //         CommunityController::addUserToCommunity($specialty, $user);
 
             info($token . PHP_EOL);
         });

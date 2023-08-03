@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-
+use App\Models\counterpost;
 class UserController extends Controller
 {
     /**
@@ -108,6 +108,7 @@ class UserController extends Controller
 
     public function createRandomUsers($count)
     {
+
         $factory = User::factory();
 
         for ($i = 0; $i < $count; $i++) {

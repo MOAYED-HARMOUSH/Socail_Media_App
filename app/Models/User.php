@@ -39,7 +39,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
         'gender',
         'bio',
         'image_path',
-        'country',
+        'country','Approvals_counter'
     ];
 
     /**
@@ -76,7 +76,10 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
     {
         return $this->hasMany(Comment::class);
     }
-
+    public function agrees(): HasMany
+    {
+        return $this->hasMany(Agree::class);
+    }
     public function pages(): HasMany
     {
         return $this->hasMany(Page::class, 'admin_id');
@@ -94,6 +97,10 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail //1
     public function reports(): HasMany
     {
         return $this->hasMany(Report::class);
+    }
+    public function counters(): HasMany
+    {
+        return $this->hasMany(counterpost::class);
     }
 
     public function favoritePosts(): BelongsToMany
