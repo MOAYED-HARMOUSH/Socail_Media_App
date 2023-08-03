@@ -83,9 +83,11 @@ class AuthController extends Controller
     public function deleteAccount(Request $request)
     {
         $this->logOut($request);
-        $user = $request->user();
 
-        CommunityController::subSubscriberCounts($user);
+        $user = $request->user();
+        $communities = $user->communities()->get();
+
+        CommunityController::subSubscriberCounts($communities);
 
         PageController::subMemberCounts($user);
 

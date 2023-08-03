@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Page;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -17,11 +18,18 @@ class UserSeeder extends Seeder
             ->count(5)
             ->hasSpecialty()
             ->has(
-                User::factory()
+                $receivers = User::factory()
                     ->count(3)
                     ->hasSpecialty(),
                 'senders'
             )
             ->create();
+
+        $page = Page::factory()
+            ->count(3)
+            ->for($senders)
+            ->create();
+
+        $receivers->has($page, 'memberPages')->create();
     }
 }

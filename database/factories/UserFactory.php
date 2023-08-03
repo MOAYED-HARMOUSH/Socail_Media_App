@@ -73,7 +73,7 @@ class UserFactory extends Factory
 
             CommunityController::addUserToCommunity($specialty, $user);
 
-            echo $token . PHP_EOL;
+            info($token . PHP_EOL);
         });
     }
 }

@@ -3,20 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Post;
-use App\Models\Specialty;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Database\Seeders\MainSeeder;
-use Illuminate\Database\Seeder;
 
 class UserController extends Controller
 {
-    public function getAvatar(Request $request) //for Test Only
-    {
-        return $request->user()->getFirstMedia('avatars');
-    }
-
+    /**
+     * Summary of completeInfo
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse|mixed
+     */
     public function completeInfo(Request $request)
     {
         if ($request->has('study_semester'))
@@ -29,15 +25,86 @@ class UserController extends Controller
                 'work_at_company' => $request->work_at_company
             ]);
 
-        return $request->user()->update($request->all());
+        $request->user()->update($request->all());
+
+        return response()->json([
+            'Message' => 'success'
+        ]);
     }
-    public function Editspecialty(Request $request) //test
+
+    public function show(Request $request)
     {
-
-          return  $request->user()->specialty()->update($request->all());
-
+        # code...
     }
 
+    /**
+     * Summary of edit
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse|mixed
+     */
+    public function edit(Request $request)
+    {
+        $user = $request->user();
+        $user->update($request->all());
+
+        if ($request->hasFile('image')) {
+            $user->addMediaFromRequest('image')->toMediaCollection('avatars');
+        }
+
+        $this->editSpecialty($request);
+
+        if ($request->has('study_semester'))
+            $user->student()->update($request->all());
+
+        if ($request->has('companies'))
+            $user->expert()->update([
+                'companies' => json_encode(explode(',', $request->companies)),
+                'years_as_expert' => $request->years_as_expert,
+                'work_at_company' => $request->work_at_company
+            ]);
+
+        return response()->json([
+            'Message' => 'success'
+        ]);
+    }
+
+    /**
+     * Summary of editSpecialty
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse|mixed
+     */
+    public function editSpecialty(Request $request)
+    {
+        $old_specialty = $request->user()->specialty()->first();
+        $old_specialty_arr = array_merge(
+            [$old_specialty->specialty],
+            explode(',', $old_specialty->section),
+            explode(',', $old_specialty->framework),
+            explode(',', $old_specialty->language)
+        );
+
+        $old_specialty->update($request->all());
+
+        $new_specialty_arr = array_merge(
+            [$request->specialty],
+            explode(',', $request->section),
+            explode(',', $request->framework),
+            explode(',', $request->language)
+        );
+
+        $new_specialties_arr = array_diff($new_specialty_arr, $old_specialty_arr);
+        $old_specialties_arr = array_diff($old_specialty_arr, $new_specialty_arr);
+
+        $new_specialty = implode(',', $new_specialties_arr);
+        $old_specialty = implode(',', $old_specialties_arr);
+
+        CommunityController::addUserToCommunity($new_specialty, $request->user());
+        CommunityController::removeUserFromCommunity($old_specialty, $request->user());
+
+        return response()->json([
+            'Message' => 'success'
+        ]);
+    }
 
     public function createRandomUsers($count)
     {
@@ -46,8 +113,8 @@ class UserController extends Controller
         for ($i = 0; $i < $count; $i++) {
             $user = $factory->create();
             $token = $user->createToken('Sign up', [''], now()->addYear())->plainTextToken;
-            $arr[$i]=$token;
-            $users[$i]=$user;
+            $arr[$i] = $token;
+            $users[$i] = $user;
         }
         app()->make(\Database\Seeders\MainSeeder::class)->run();
 
@@ -55,6 +122,3 @@ class UserController extends Controller
     }
 
 }
-
-
-
