@@ -13,7 +13,11 @@ class Friend extends Pivot
         'id'
     ];
 
-    protected $table='friends';
+    protected $casts = [
+        'is_approved' => 'boolean'
+    ];
+
+    protected $table = 'friends';
 
     public function senders()
     {

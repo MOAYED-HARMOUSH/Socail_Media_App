@@ -26,7 +26,7 @@ class Post extends Model implements HasMedia
         'title',
         'reports_number',
         'location_type',
-        'loction_id'
+        'loction_id','Approvals_counter'
     ];
 
     public function user(): BelongsTo
@@ -42,6 +42,10 @@ class Post extends Model implements HasMedia
     public function photos(): HasMany
     {
         return $this->hasMany(Photo::class);
+    }
+    public function agrees(): HasMany
+    {
+        return $this->hasMany(Agree::class);
     }
 
     public function comments(): HasMany

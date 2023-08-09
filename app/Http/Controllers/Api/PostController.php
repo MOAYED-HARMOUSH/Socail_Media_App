@@ -13,8 +13,10 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use App\Models\Community;
 use App\Models\CommunityUser;
 use App\Http\Controllers\Api\FriendController;
+use App\Models\Agree;
 use App\Models\Comment;
 use App\Models\counterpost;
+use App\Models\Expert;
 use App\Models\Page;
 use App\Models\PageUser;
 use App\Models\Reaction;
@@ -22,9 +24,12 @@ use App\Models\Report;
 use App\Models\SharePost;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
+use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\Return_;
 use PHPUnit\Framework\Constraint\Count;
 use SebastianBergmann\LinesOfCode\Counter;
+
+use function PHPUnit\Framework\isNull;
 
 class PostController extends Controller
 {
@@ -37,12 +42,20 @@ class PostController extends Controller
         $user = Auth::user();
         $user = User::find($user->id);
 
+        $type=$request->type;
+        if($type=='Challenge')
+        {
+            $type='Accepted Challenge';
+        }
+        else if($type !='Challenge')
+
+           {   $type=$request->type;}
 
 
         $post = $user->locationPosts()->create([
             'title' => $request->title,
             'content' => $request->content,
-            'type' => $request->type,
+            'type' => $type,
             'user_id' => $user->id
         ]);
 
@@ -73,6 +86,15 @@ class PostController extends Controller
         $user = Auth::user();
         $user = User::find($user->id);
 
+        $type=$request->type;
+        if($type=='Challenge')
+        {
+            $type='Accepted Challenge';
+        }
+        else if($type !='Challenge')
+
+           {   $type=$request->type;}
+
 
         $page = Page::find($id);
         $check = Page::where('admin_id', $user->id)->where('id', $id)->value('id');
@@ -82,7 +104,7 @@ class PostController extends Controller
             $post = $page->posts()->create([
                 'title' => $request->title,
                 'content' => $request->content,
-                'type' => $request->type,
+                'type' => $type,
                 'user_id' => $user->id
             ]);
 
@@ -223,20 +245,30 @@ class PostController extends Controller
         ]);
     }
 
-    public function ExtraInfo_Post($ids, $user)
+    public function ExtraInfo_Post($ids, $user, $ifstories = null)
     {
+
         $bigarray = array();
 
-        $user_degree = $user->expert()->pluck('years_as_expert')->first();
+        $user_degree = $user->expert()->value('years_as_expert');
 
         foreach ($ids as  $value) {
             $post_type = Post::where('id', $value)->first()->type;
 
+            // if($post_type != 'Story'&& $user_degree == null && $post_type != 'Challenge'){
+            //     $state1=1;
+            // }
+            // if($post_type != 'Story' && $user_degree =! null ){
+            //     $state1=2;
+            // }
 
-            if ($post_type != 'Story') {
-                // if ($user_degree == null) {
-                //     if ($post_type != 'Challenge') {
+            if (($post_type != 'Story' && ($user_degree == null && $post_type != 'Challenge'))
+                || ($post_type != 'Story' && $user_degree != null) || $ifstories == 'story'
+            ) {
 
+                //      if ($post_type == 'Challenge'  ) {
+
+                //  if (isset($user_degree)) {
 
 
                 $post_time = Post::where('id', $value)->first()->created_at;
@@ -315,10 +347,22 @@ class PostController extends Controller
 
                 $bigarray[$value] = $myArray;
             }
-            //         }
-            //      }
+            //    }
+            //  }
         }
+
         return array_values($bigarray);
+        // return response()->json([
+        //     'Message' => 'success',
+        //     'poster' => ['posts' => $poster],
+        //     'poster_photo' => ['posts' => $poster_photo],
+        //     'poster_degree' => ['posts' => $poster_degree],
+        //     'diff' => ['posts' => $diff],
+        //     'post' => ['posts' => $post],
+        //     'me' => ['posts' => $me],
+        //     'my_reacion' => ['posts' => $my_reacion],
+        //     'shared' => ['posts' => $shared],
+        // ]);
     }
     public function like_or_cancellike_on_post($id)
     {
@@ -495,34 +539,12 @@ class PostController extends Controller
             $friends_ids = $friend->showFriends($request)->count();
 
 
-            $range = round($friends_ids  / 30);
+            $range = round( $friends_ids/ 30);
         }
         $halfrange = round($range) / 2;
 
 
-        if ($reports_on_this + 1 == $halfrange) {
-            //notifiction
-        }
-        if ($reports_on_this + 1 == $range) {
 
-            $comment_id = Comment::where('post_id', $id)->get();
-
-            foreach ($comment_id as $value) {
-                $value->reactions()->delete();
-                $value->reports()->delete();
-            }
-
-
-            $post->delete();
-            $post->comments()->delete();
-            $post->reactions()->delete();
-            $post->reports()->delete();
-
-
-
-            //notification
-            return 'Too Many Reports .. Post_Deleted ';
-        }
 
 
 
@@ -536,6 +558,31 @@ class PostController extends Controller
                 'user_id' => $user->id,
             ]);
             $post->update(['reports_number' => $reports_on_this + 1]);
+            $reports_on_this = Post::where('id', $post->id)->value('reports_number');
+
+            if ($reports_on_this  == $halfrange) {
+                //notifiction
+            }
+            if ($reports_on_this  == $range) {
+
+                $comment_id = Comment::where('post_id', $id)->get();
+
+                foreach ($comment_id as $value) {
+                    $value->reactions()->delete();
+                    $value->reports()->delete();
+                }
+
+
+                $post->delete();
+                $post->comments()->delete();
+                $post->reactions()->delete();
+                $post->reports()->delete();
+
+
+
+                //notification
+                return 'report and Too Many Reports .. Post_Deleted ';
+            }
             return 'report';
         }
     }
@@ -573,23 +620,7 @@ class PostController extends Controller
         $halfrange = round($range) / 2;
 
 
-        if ($reports_on_this + 1 == $halfrange) {
-            //notifiction
-        }
-        if ($reports_on_this + 1 == $range) {
 
-
-
-
-            $comment->delete();
-            $comment->reactions()->delete();
-            $comment->reports()->delete();
-
-
-
-            //notification
-            return 'Too Many Reports .. comment_Deleted ';
-        }
 
 
 
@@ -603,6 +634,25 @@ class PostController extends Controller
                 'user_id' => $user->id,
             ]);
             $comment->update(['reports_number' => $reports_on_this + 1]);
+            $reports_on_this = Comment::where('id', $id)->value('reports_number');
+
+            if ($reports_on_this  == $halfrange) {
+                //notifiction
+            }
+            if ($reports_on_this  == $range) {
+
+
+
+
+                $comment->delete();
+                $comment->reactions()->delete();
+                $comment->reports()->delete();
+
+
+
+                //notification
+                return 'report and Too Many Reports .. comment_Deleted ';
+            }
             return 'report';
         }
     }
@@ -685,26 +735,113 @@ class PostController extends Controller
                 $arr[] = $key;
             }
         }
-        $arr2 = [];
-        foreach ($arr as $final) {
-            $new_datetime = $final->toISOString();
-            $arr2[] = $new_datetime;
+        // $arr2 = [];
+        // foreach ($arr as $final) {
+        //     $new_datetime = $final->toISOString();
+        //     $arr2[] = $new_datetime;
+        // }
+
+
+        $users = Post::whereIn('user_id', $friends_ids)->where('type', 'Story')->whereIn('created_at', $arr)->pluck('user_id')->toArray();
+        $all = array_unique($users);
+
+        $active = [];
+
+
+        foreach ($all as  $value) {
+            $id = $value;
+            $active_sroties = collect(Media::where('model_id', $value)->where('collection_name', 'avatars')->get())->map(function ($media) {
+                return   $medi = $media->getUrl();
+            });
+            $active[] = [$id, $active_sroties];
         }
-
-
-        $users = Post::whereIn('user_id', $friends_ids)->where('type', 'Story')->whereIn('created_at', $arr2)->pluck('user_id');
-
-
-
-        $active_sroties = collect(Media::whereIn('model_id', $users)->where('collection_name', 'avatars')->get())->map(function ($media) {
-            return $media->getUrl();
-        })->all();
         return response()->json([
-            'data' => $active_sroties
+            'data' => $active,
         ]);
     }
-    public function showstory()  {
+    public function showstory(Request $request, $id)
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
 
-            
+        $storyies_time = Post::where('user_id', $id)->where('type', 'Story')->pluck('created_at');
+
+        foreach ($storyies_time as $key) {
+            $old_datetime = Carbon::parse($key)->format('Y-m-d H:i');
+            if (now()->diffInHours($old_datetime) <= 24) {
+                $arr[] = $key;
+            }
+        }
+        // $arr2 = [];
+        // foreach ($arr as $final) {
+        //     $new_datetime = $final->toISOString();
+        //     $arr2[] = $new_datetime;
+        // }
+        //  return $arr2;
+        $storyies = Post::where('user_id', $id)->where('type', 'Story')->whereIn('created_at', $arr)->pluck('id')->toArray();
+        return $this->ExtraInfo_Post($storyies, $user, 'story');
+        return $arr;
+    }
+    public function agree_or_cancelagree_challenge(Request $request, $id)
+    {
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $post_type = Post::where('id', $id)->first()->type;
+        $post = Post::where('id', $id)->first();
+        $count = Post::where('id', $id)->value('Approvals_counter');
+        $location_type = $post->location_type;
+        $location_id = $post->location_id;
+
+        $range = 0;
+        $user_degree = $user->expert()->value('years_as_expert');
+
+        if ($user_degree == null) {
+            return ' not expert .. go out donkey';
+        } else if ($post_type != 'Challenge') {
+            return ' post isnt challenge .. go out donkey';
+        } else {
+            if ($location_type == 'App\Models\Community')
+            {
+                $subscribers =  CommunityUser::where('community_id', $location_id)->pluck('user_id');
+                $numexperts = Expert::whereIn('user_id', $subscribers)->count();
+                $range = round( $numexperts / 10);
+
+
+            }
+
+
+
+            $user_agree = Agree::where('post_id', $id)->where('user_id', $user->id)->value('id');
+            if ($user_agree == null)
+            {
+                $post->agrees()->create([
+
+                    'user_id' => $user->id,
+                ]);
+
+                $post->update([
+
+                    'Approvals_counter' => $count + 1,
+                ]);
+                $count = Post::where('id', $id)->value('Approvals_counter');
+
+                if ($count  == $range) {
+                    $post->update([
+                        'type'=> 'Accepted Challenge'
+                    ]);
+                    return 'Voted .. and post ACCEPTED';
+                }
+                return 'voted';
+            } else
+            {
+                $user_agree = Agree::where('post_id', $id)->where('user_id', $user->id)->delete();
+
+                $post->update([
+
+                    'Approvals_counter' => $count - 1
+                ]);
+                return 'cancel voted';
+            }
+        }
     }
 }
