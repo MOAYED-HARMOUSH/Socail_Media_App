@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\CommunityController;
 use App\Http\Controllers\Api\FavoritePostController;
 use App\Http\Controllers\Api\FollowPageController;
 use App\Http\Controllers\Api\FriendController;
@@ -69,6 +70,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->controller(PostController::class)
                 ->prefix('api/posts')
                 ->group(base_path('routes/Api/posts.php'));
+
+                Route::name('community.')
+                ->middleware(['api'])
+                ->controller(CommunityController::class)
+                ->prefix('api/community')
+                ->group(base_path('routes/Api/community.php'));
 
             Route::name('posts.saves')
                 ->middleware(['api', 'auth:sanctum'])

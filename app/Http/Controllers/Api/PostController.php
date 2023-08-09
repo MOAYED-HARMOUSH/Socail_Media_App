@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Photo;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -18,18 +17,12 @@ use App\Models\Comment;
 use App\Models\counterpost;
 use App\Models\Expert;
 use App\Models\Page;
-use App\Models\PageUser;
 use App\Models\Reaction;
 use App\Models\Report;
 use App\Models\SharePost;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Redis;
-use PhpParser\Node\Stmt\Else_;
-use PhpParser\Node\Stmt\Return_;
-use PHPUnit\Framework\Constraint\Count;
-use SebastianBergmann\LinesOfCode\Counter;
 
-use function PHPUnit\Framework\isNull;
+use Illuminate\Support\Str;
+
 
 class PostController extends Controller
 {
@@ -167,25 +160,26 @@ class PostController extends Controller
         $message = 'created ';
     }
 
-    public  function gethomeposts(Request $request)
+    public  function gethomeposts(Request $request ,$ids=[])
     {
 
         $user = Auth::user();
         $user = User::find($user->id);
-        $l = counterpost::where('user_id', $user->id)->value('counter_post');
+        $l = counterpost::where('user_id', $user->id)->where('location','homepage')->value('counter_post');
 
         if ($l == 0) {
             counterpost::create([
                 'counter_post' => $l + 1,
-                'user_id' => $user->id
+                'user_id' => $user->id,
+                'location'=>'homepage'
             ]);
         } else {
-            $count = counterpost::where('user_id', $user->id)->update([
+            $count = counterpost::where('user_id', $user->id)->where('location','homepage')->update([
                 'counter_post' => $l + 1
             ]);
         }
 
-        $v =   counterpost::where('user_id', $user->id)->value('counter_post');
+           $v =   counterpost::where('user_id', $user->id)->where('location','homepage')->value('counter_post');
 
 
         $communites_ids = ($this->getMyCommuites())->pluck('id');
@@ -235,7 +229,7 @@ class PostController extends Controller
 
         $first_fifteen = array_slice($gg, ($v - 1) * 15, 15);
         if ($first_fifteen == null) {
-            $count = counterpost::where('user_id', $user->id)->delete();
+            $count = counterpost::where('user_id', $user->id)->where('location','homepage')->delete();
 
             return 'end posts >> referssh';
         }
@@ -255,21 +249,10 @@ class PostController extends Controller
         foreach ($ids as  $value) {
             $post_type = Post::where('id', $value)->first()->type;
 
-            // if($post_type != 'Story'&& $user_degree == null && $post_type != 'Challenge'){
-            //     $state1=1;
-            // }
-            // if($post_type != 'Story' && $user_degree =! null ){
-            //     $state1=2;
-            // }
 
             if (($post_type != 'Story' && ($user_degree == null && $post_type != 'Challenge'))
                 || ($post_type != 'Story' && $user_degree != null) || $ifstories == 'story'
             ) {
-
-                //      if ($post_type == 'Challenge'  ) {
-
-                //  if (isset($user_degree)) {
-
 
                 $post_time = Post::where('id', $value)->first()->created_at;
 
@@ -340,8 +323,10 @@ class PostController extends Controller
                 $arr = $photos_media->merge($videos_media);
 
                 $me = collect(Media::whereIn('id', $arr)->get())->map(function ($media) {
-                    return $media->getUrl();
-                })->all();
+                    $fullPath = str_replace('\\', '/', $media->getUrl());
+                    $publicPath = Str::after($fullPath, 'http://127.0.0.1:8000/');
+                    return $publicPath;
+                      })->all();
 
                 $myArray = array_merge([$poster], [$poster_photo], [$poster_degree], [$diff], [$post], [$me], [$my_reacion], [$shared]);
 
@@ -352,17 +337,7 @@ class PostController extends Controller
         }
 
         return array_values($bigarray);
-        // return response()->json([
-        //     'Message' => 'success',
-        //     'poster' => ['posts' => $poster],
-        //     'poster_photo' => ['posts' => $poster_photo],
-        //     'poster_degree' => ['posts' => $poster_degree],
-        //     'diff' => ['posts' => $diff],
-        //     'post' => ['posts' => $post],
-        //     'me' => ['posts' => $me],
-        //     'my_reacion' => ['posts' => $my_reacion],
-        //     'shared' => ['posts' => $shared],
-        // ]);
+      
     }
     public function like_or_cancellike_on_post($id)
     {
@@ -844,4 +819,5 @@ class PostController extends Controller
             }
         }
     }
+
 }
