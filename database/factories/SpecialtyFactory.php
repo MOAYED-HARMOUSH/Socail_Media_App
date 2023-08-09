@@ -25,7 +25,7 @@ class SpecialtyFactory extends Factory
         $language = config('specialty.language');
 
         return [
-            'specialty' => implode(",", fake()->randomElements($specialty)),
+            'specialty' => fake()->randomElement($specialty),
             'section' => implode(",", fake()->randomElements($section, rand(1, 32))),
             'framework' => implode(",", fake()->randomElements($framework, rand(1, 11))),
             'language' => implode(",", fake()->randomElements($language, rand(1, 13)))
