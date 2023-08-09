@@ -66,7 +66,10 @@ class UserController extends Controller
         $user->student;
         $user->expert;
         $user->specialty;
-        return $user;
+        return response()->json([
+            'Message' => 'success',
+            'user'=>$user
+        ]);
     }
 
     /**
