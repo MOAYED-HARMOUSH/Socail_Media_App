@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\counterpost;
+
 class UserController extends Controller
 {
     /**
@@ -32,9 +33,40 @@ class UserController extends Controller
         ]);
     }
 
-    public function show(Request $request)
+    public function showAnotherProfile(Request $request)
     {
-        # code...
+        $user = User::find($request->id);
+        $receiver = $request->user()->senders()->where('friends.receiver', $request->id)->first();
+        $sender = $request->user()->receivers()->where('friends.sender', $request->id)->first();
+        // return var_dump($receiver->is_approved===[]);
+        if ($receiver != null) {
+            if (!is_null($receiver->is_approved))
+                $button = ($receiver->is_approved == false) ? 'Rejected' : 'Accepted';
+            else
+                $button = 'Cancel Request?!';
+        } elseif ($sender != null) {
+            $button = ($sender->is_approved == true) ? 'Reject' : 'Accept';
+        } else {
+            $button = 'Send Friend Request';
+        }
+        if ($user != null)
+            $user->getFirstMedia('avatars');
+        $user = collect($user)->except(['email', 'email_verified_at', 'created_at', 'updated_at']);
+        return response()->json([
+            'Message' => 'success',
+            'data' => $user,
+            'button' => $button
+        ]);
+    }
+
+    public function showMyProfile(Request $request)
+    {
+        $user = $request->user();
+        $user->getFirstMedia('avatars');
+        $user->student;
+        $user->expert;
+        $user->specialty;
+        return $user;
     }
 
     /**

@@ -8,3 +8,7 @@ Route::post('completeInfo','completeInfo');
 Route::get('specialties/show','updateSpecialty');
 
 Route::post('specialties/edit','editSpecialty');
+
+Route::get('user/show','showAnotherProfile');
+
+Route::get('profile/show','showMyProfile');
