@@ -51,7 +51,7 @@ class UserController extends Controller
                 'Message' => 'Invalid id'
             ]);
 
-        $url = $user->getFirstMedia('avatars')->original_url;
+        $url = $user->getFirstMedia('avatars')?->original_url;
         $user->student;
         $user->expert;
         $user->specialty;
@@ -89,7 +89,7 @@ class UserController extends Controller
     public function showMyProfile(Request $request)
     {
         $user = $request->user();
-        $url = $user->getFirstMedia('avatars')->original_url;
+        $url = $user->getFirstMedia('avatars')?->original_url;
         $user->student;
         $user->expert;
         $user->specialty;
