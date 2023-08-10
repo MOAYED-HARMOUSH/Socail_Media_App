@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Serializable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Notifications\Notifiable;
@@ -243,5 +242,10 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail  //1
     public function getNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatars')->singleFile();
     }
 }

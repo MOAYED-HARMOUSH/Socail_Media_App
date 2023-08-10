@@ -62,13 +62,14 @@ class UserController extends Controller
     public function showMyProfile(Request $request)
     {
         $user = $request->user();
-        $user->getFirstMedia('avatars');
+        $url = $user->getFirstMedia('avatars')->original_url;
         $user->student;
         $user->expert;
         $user->specialty;
         return response()->json([
             'Message' => 'success',
-            'user'=>$user
+            'user' => $user,
+            'media_url' => $url
         ]);
     }
 
@@ -80,7 +81,6 @@ class UserController extends Controller
     public function edit(Request $request)
     {
         $user = $request->user();
-        $user->update($request->all());
 
         if ($request->hasFile('image')) {
             $user->addMediaFromRequest('image')->toMediaCollection('avatars');
@@ -88,8 +88,10 @@ class UserController extends Controller
 
         $this->editSpecialty($request);
 
-        if ($request->has('study_semester'))
-            $user->student()->update($request->all());
+        if ($request->has('study_semester')) {
+            $student = $user->student()->first();
+            $student->update($request->all());
+        }
 
         if ($request->has('companies'))
             $user->expert()->update([
@@ -97,6 +99,9 @@ class UserController extends Controller
                 'years_as_expert' => $request->years_as_expert,
                 'work_at_company' => $request->work_at_company
             ]);
+
+        $user->update($request->all());
+        //ToDo: Verification Email Required when Changing Email
 
         return response()->json([
             'Message' => 'success'

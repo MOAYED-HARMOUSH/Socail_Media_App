@@ -12,3 +12,5 @@ Route::post('specialties/edit','editSpecialty');
 Route::get('user/show','showAnotherProfile');
 
 Route::get('profile/show','showMyProfile');
+
+Route::post('profile/edit','edit');
