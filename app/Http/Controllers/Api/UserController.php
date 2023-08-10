@@ -96,7 +96,9 @@ class UserController extends Controller
         return response()->json([
             'Message' => 'success',
             'user' => $user,
-            'media_url' => $url
+            'media_url' => $url,
+            'button1' => null,
+            'button2' => null
         ]);
     }
 
