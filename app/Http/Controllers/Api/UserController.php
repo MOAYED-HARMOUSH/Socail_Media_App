@@ -33,29 +33,56 @@ class UserController extends Controller
         ]);
     }
 
-    public function showAnotherProfile(Request $request)
+    public function show(Request $request, int $id = null)
     {
+        if (isset($id))
+            return $this->showAnotherProfile($request, $id);
+        else
+            return $this->showMyProfile($request);
+    }
+
+    public function showAnotherProfile(Request $request, int $id)
+    {
+        $button2 = null;
+
         $user = User::find($request->id);
-        $receiver = $request->user()->senders()->where('friends.receiver', $request->id)->first();
-        $sender = $request->user()->receivers()->where('friends.sender', $request->id)->first();
-        // return var_dump($receiver->is_approved===[]);
+        if ($user == null)
+            return response()->json([
+                'Message' => 'Invalid id'
+            ]);
+
+        $url = $user->getFirstMedia('avatars')->original_url;
+        $user->student;
+        $user->expert;
+        $user->specialty;
+
+        $receiver = $request->user()->senders()->where('friends.receiver', $id)->first();
+        $sender = $request->user()->receivers()->where('friends.sender', $id)->first();
+
         if ($receiver != null) {
-            if (!is_null($receiver->is_approved))
-                $button = ($receiver->is_approved == false) ? 'Rejected' : 'Accepted';
+            $is_approved = $receiver->sender->is_approved;
+            if (isset($is_approved))
+                $button1 = ($is_approved == false) ? 'Rejected' : 'Accepted';
             else
-                $button = 'Cancel Request?!';
+                $button1 = 'Cancel Request';
         } elseif ($sender != null) {
-            $button = ($sender->is_approved == true) ? 'Reject' : 'Accept';
-        } else {
-            $button = 'Send Friend Request';
-        }
-        if ($user != null)
-            $user->getFirstMedia('avatars');
+            $is_approved = $sender->receiver->is_approved;
+            if (isset($is_approved))
+                $button1 = ($is_approved == true) ? 'Reject' : 'Accept';
+            else {
+                $button1 = 'Accept';
+                $button2 = 'Reject';
+            }
+        } else
+            $button1 = 'Send Friend Request';
+
         $user = collect($user)->except(['email', 'email_verified_at', 'created_at', 'updated_at']);
         return response()->json([
             'Message' => 'success',
-            'data' => $user,
-            'button' => $button
+            'user' => $user,
+            'media_url' => $url,
+            'button1' => $button1,
+            'button2' => $button2
         ]);
     }
 
@@ -88,13 +115,14 @@ class UserController extends Controller
 
         $this->editSpecialty($request);
 
-        if ($request->has('study_semester')) {
-            $student = $user->student()->first();
-            $student->update($request->all());
-        }
+        if ($request->has('study_semester'))
+            if ($user->student()->first() != null)
+                $user->student()->first()->update($request->all());
+            else
+                $user->student()->create($request->all());
 
         if ($request->has('companies'))
-            $user->expert()->update([
+            $user->expert()->updateOrCreate([
                 'companies' => json_encode(explode(',', $request->companies)),
                 'years_as_expert' => $request->years_as_expert,
                 'work_at_company' => $request->work_at_company
