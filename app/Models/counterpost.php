@@ -12,7 +12,8 @@ class counterpost extends Model
     use HasFactory;
     protected $fillable=[
         'counter_post',
-        'user_id'
+        'user_id',
+        'location'
     ];
     public function user(): BelongsTo
     {

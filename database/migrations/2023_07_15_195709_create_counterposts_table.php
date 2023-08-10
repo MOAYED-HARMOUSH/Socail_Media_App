@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('counterposts', function (Blueprint $table) {
             $table->id();
             $table->integer('counter_post')->nullable();
-
+            $table->string('location') ;
             $table->foreignId('user_id')
                 ->constrained()
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
-                
+
             $table->timestamps();
         });
     }
