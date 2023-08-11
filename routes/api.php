@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -27,3 +28,5 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 Route::get('createRandomUsers{id}',[UserController::class,'createRandomUsers']);
 Route::get('createRandomSpecialties{id}',[UserController::class,'createRandomSpecialties']);
 Route::get('createRandomPosts{id}',[UserController::class,'createRandomPosts']);
+
+Route::post('search',[SearchController::class,'search']);
