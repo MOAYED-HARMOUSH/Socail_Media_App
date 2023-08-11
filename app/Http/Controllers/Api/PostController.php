@@ -60,6 +60,7 @@ class PostController extends Controller
 
         $user = Auth::user();
         $user = User::find($user->id);
+
         $community = Community::find($id);
         $post = $community->posts()->create([
             'title' => $request->title,
@@ -165,6 +166,7 @@ class PostController extends Controller
 
         $user = Auth::user();
         $user = User::find($user->id);
+        $us= User::find($request->id);
         $l = counterpost::where('user_id', $user->id)->where('location','homepage')->value('counter_post');
 
         if ($l == 0) {
@@ -229,9 +231,11 @@ class PostController extends Controller
 
         $first_fifteen = array_slice($gg, ($v - 1) * 15, 15);
         if ($first_fifteen == null) {
-            $count = counterpost::where('user_id', $user->id)->where('location','homepage')->delete();
+             $count = counterpost::where('user_id', $user->id)->where('location','homepage')->delete();
 
-            return 'end posts >> referssh';
+             return 'end posts >> referssh';
+        //      //$l=0;
+        //    return $this->gethomeposts($request );
         }
         return response()->json([
             'Message' => 'success',
@@ -337,7 +341,7 @@ class PostController extends Controller
         }
 
         return array_values($bigarray);
-      
+
     }
     public function like_or_cancellike_on_post($id)
     {
@@ -819,5 +823,81 @@ class PostController extends Controller
             }
         }
     }
+
+    public function getcommunityInfo(Request $request, $community_id)
+    {
+ $user= Auth::user();
+     $user_id=  $request->user()->id;
+
+        $type=$request->type;
+        $locationt = 'community.' . $type;
+
+
+       $l = counterpost::where('location', $locationt)->where('user_id', $user->id)->value('counter_post');
+
+        if ($l == 0) {
+            counterpost::create([
+                'counter_post' => $l + 1,
+                'user_id' => $user->id,
+                'location' => $locationt
+            ]);
+        } else {
+            $count = counterpost::where('location', $locationt)->where('user_id', $user->id)->update([
+                'counter_post' => $l + 1
+            ]);
+        }
+
+        $v =   counterpost::where('location', $locationt)->where('user_id', $user->id)->value('counter_post');
+
+
+        $community =   Community::where('id', $community_id)->first();
+        $me = collect(Media::where('collection_name', 'communities_photos')->where('model_id', $community_id)->get())->map(function ($media) {
+            $fullPath = str_replace('\\', '/', $media->getUrl());
+            $publicPath = Str::after($fullPath, 'http://127.0.0.1:8000/');
+            return $publicPath;
+        })->all();
+
+        if ($type =='all') {
+            $posts_ids = Post::where('location_type', 'App\Models\Community')->where('location_id', $community_id)->pluck('id');
+        } else {
+
+             $posts_ids = Post::where('location_type', 'App\Models\Community')->where('location_id', $community_id)->where('type', $type)->pluck('id');
+        }
+
+        $posts_controller = new PostController;
+        $posts = $posts_controller->ExtraInfo_Post($posts_ids, $user);
+
+        $collection = collect($posts);
+
+        $sorted_posts = $collection->sortByDesc('created_at');
+
+        $valueall = [];
+        foreach ($posts as  $value) {
+            $po = $value[4];
+
+            $valueall[] = $po;
+        }
+
+        $sorted_posts = collect($valueall)->sortByDesc('created_at');
+        $so = $sorted_posts->pluck('id');
+
+        $gg = $posts_controller->ExtraInfo_Post($so, $user);
+
+        $first_fifteen = array_slice($gg, ($v - 1) * 15, 15);
+        if ($first_fifteen == null) {
+            $count = counterpost::where('location',$locationt)->where('user_id', $user->id)->delete();
+
+            return 'end posts >> referssh';
+
+        }
+        return response()->json([
+            'Message' => 'success',
+            'photo' => $me,
+            'info' => $community,
+            'data' => ['posts' => $first_fifteen],
+
+        ]);
+    }
+
 
 }

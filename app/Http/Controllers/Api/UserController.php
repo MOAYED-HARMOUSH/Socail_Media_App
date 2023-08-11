@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\counterpost;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Post;
 
 class UserController extends Controller
 {
@@ -156,5 +158,63 @@ class UserController extends Controller
 
         return $arr;
     }
+    public function get_profile_posts(Request $request, $id)
+    {
 
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $l = counterpost::where('location', 'profile')->where('user_id', $user->id)->value('counter_post');
+
+        if ($l == 0) {
+            counterpost::create([
+                'counter_post' => $l + 1,
+                'user_id' => $user->id,
+                'location' => 'profile'
+            ]);
+        } else {
+            $count = counterpost::where('location', 'profile')->where('user_id', $user->id)->update([
+                'counter_post' => $l + 1
+            ]);
+        }
+
+        $v =   counterpost::where('location', 'profile')->where('user_id', $user->id)->value('counter_post');
+
+
+        $profile =   User::where('id', $id)->first();
+
+
+        $posts_ids = Post::where('location_type', 'App\Models\User')->where('user_id', $id)->pluck('id');
+
+        $posts_controller = new PostController;
+        $posts = $posts_controller->ExtraInfo_Post($posts_ids, $user);
+
+        $collection = collect($posts);
+
+        $sorted_posts = $collection->sortByDesc('created_at');
+
+        $valueall = [];
+        foreach ($posts as  $value) {
+            $po = $value[4];
+
+            $valueall[] = $po;
+        }
+
+        $sorted_posts = collect($valueall)->sortByDesc('created_at');
+        $so = $sorted_posts->pluck('id');
+
+        $gg = $posts_controller->ExtraInfo_Post($so, $user);
+
+        $first_fifteen = array_slice($gg, ($v - 1) * 15, 15);
+        if ($first_fifteen == null) {
+            $count = counterpost::where('location', 'profile')->where('user_id', $user->id)->delete();
+
+            return 'end posts >> referssh';
+        }
+        return response()->json([
+            'Message' => 'success',
+
+            'data' => ['posts' => $first_fifteen],
+
+        ]);
+    }
 }
