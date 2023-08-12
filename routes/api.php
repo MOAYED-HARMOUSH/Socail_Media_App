@@ -25,8 +25,9 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     $request->fulfill();
 })->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
 
-Route::get('createRandomUsers{id}',[UserController::class,'createRandomUsers']);
-Route::get('createRandomSpecialties{id}',[UserController::class,'createRandomSpecialties']);
-Route::get('createRandomPosts{id}',[UserController::class,'createRandomPosts']);
+Route::get('createRandomUsers{id}', [UserController::class, 'createRandomUsers']);
+Route::get('createRandomSpecialties{id}', [UserController::class, 'createRandomSpecialties']);
+Route::get('createRandomPosts{id}', [UserController::class, 'createRandomPosts']);
 
-Route::post('search',[SearchController::class,'search']);
+Route::post('search', [SearchController::class, 'search']);
+Route::get('search/history/show', [SearchController::class, 'index']);

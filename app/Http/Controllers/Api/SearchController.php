@@ -14,6 +14,8 @@ class SearchController extends Controller
 {
     public function search(Request $request)
     {
+        $this->addIfNotExist($request);
+
         $type = strtolower($request->type);
         switch ($type) {
             case 'user':
@@ -37,5 +39,23 @@ class SearchController extends Controller
                 # code...
                 break;
         }
+    }
+
+    private function addIfNotExist(Request $request)
+    {
+        $history = $request->user()->searchHistory()->firstOrCreate([
+            'words' => json_encode([$request->search])
+        ]);
+
+        $words = json_decode($history->words);
+        if (!in_array($request->search, $words)) {
+            $words[] = $request->search;
+            $history->update(['words' => json_encode($words)]);
+        }
+    }
+
+    public function index(Request $request)
+    {
+        return $request->user()->searchHistory()->get();
     }
 }
