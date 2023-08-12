@@ -242,6 +242,8 @@ class MainSeeder extends Seeder
             }
 
             foreach ($community_id as $com_id) {
+                for ($i = 0; $i < 8; $i++) {
+
                 $community = Community::find($com_id);
 
                 $community->posts()->create([
@@ -254,7 +256,7 @@ class MainSeeder extends Seeder
                 $community->update([
                     'subscriber_counts' => $community->subscriber_counts + 1
                 ]);
-            }
+            }}
         }
         $this->call(FriendSeeder::class);
 

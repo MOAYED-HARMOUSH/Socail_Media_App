@@ -135,6 +135,11 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail  //1
         return $this->morphMany(Post::class, 'location');
     }
 
+    public function searchHistory(): HasOne
+    {
+        return $this->hasOne(SearchHistory::class);
+    }
+
     public function senders(): BelongsToMany
     {
         return $this->belongsToMany(
