@@ -36,6 +36,8 @@ class InviteController extends Controller
 
         // TODO : Send Notification to Receiver
 
+        $sender=$request->user()->getFirstMedia('avatars')?->original_url;
+
         $invitee = User::find($request->id);
         $page_name = Page::find($request->page_id)->name;
 
@@ -43,7 +45,8 @@ class InviteController extends Controller
             new PageInvitation(
                 true,
                 $request->user()->name,
-                $page_name
+                $page_name,
+                $sender
             )
         );
 
@@ -80,6 +83,7 @@ class InviteController extends Controller
                 ['sender', $request->sender_id]
             ])
             ->first();
+            $accepter_image=$request->user()->getFirstMedia('avatars')?->original_url;
 
         $request->user()->inviteesOne()
             ->where('page_id', $request->id)
@@ -95,7 +99,8 @@ class InviteController extends Controller
             new PageInvitation(
                 false,
                 $request->user()->name,
-                $page_name
+                $page_name,
+                $accepter_image
             )
         );
 

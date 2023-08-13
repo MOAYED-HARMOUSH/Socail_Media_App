@@ -23,6 +23,8 @@ Route::post('getcommunityInfo/{community_id}','getcommunityInfo')->middleware(['
 
 Route::get('share_post_1', 'share_post_1')->middleware(['auth:sanctum']);
 Route::post('share_post_2/{post_id}/{location_id}', 'share_post_2')->middleware(['auth:sanctum']);
+Route::post('editpost/{post_id}', 'editpost')->middleware(['auth:sanctum']);
+Route::get('deletepost/{post_id}', 'deletepost')->middleware(['auth:sanctum']);
 
 Route::get('avtive_stories', 'avtive_stories')->middleware(['auth:sanctum']);
 Route::get('showstory/{id}', 'showstory')->middleware(['auth:sanctum']);

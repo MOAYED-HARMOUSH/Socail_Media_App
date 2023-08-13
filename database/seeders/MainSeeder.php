@@ -242,7 +242,7 @@ class MainSeeder extends Seeder
             }
 
             foreach ($community_id as $com_id) {
-                for ($i = 0; $i < 8; $i++) {
+                for ($i = 0; $i < 4; $i++) {
 
                 $community = Community::find($com_id);
 

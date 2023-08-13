@@ -15,3 +15,7 @@ Route::post('profile/edit','edit');
 Route::get('profile/show','showMyProfile');
 
 Route::get('get_profile_posts/{id}','get_profile_posts');
+Route::get('get_my_profile_posts','get_my_profile_posts');
+
+Route::get('show_unread_notification','show_unread_notification');
+Route::get('show_old_notification','show_old_notification');

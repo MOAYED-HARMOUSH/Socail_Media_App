@@ -166,7 +166,7 @@ class PostController extends Controller
 
         $user = Auth::user();
         $user = User::find($user->id);
-        $us= User::find($request->id);
+
         $l = counterpost::where('user_id', $user->id)->where('location','homepage')->value('counter_post');
 
         if ($l == 0) {
@@ -208,8 +208,8 @@ class PostController extends Controller
         foreach ($pages_posts_ids as $value2) {
             array_push($all_posts, $value2);
         }
-        $posts = $this->ExtraInfo_Post($all_posts, $user);
 
+        $posts = $this->ExtraInfo_Post($all_posts, $user);
         $collection = collect($posts);
 
         $sorted_posts = $collection->sortByDesc('created_at');
@@ -223,10 +223,7 @@ class PostController extends Controller
 
         $sorted_posts = collect($valueall)->sortByDesc('created_at');
         $so = $sorted_posts->pluck('id');
-        // foreach ($so as $ke) {
-        //     $vk[] = $ke;
-        // }
-        // $vk;
+
         $gg = $this->ExtraInfo_Post($so, $user);
 
         $first_fifteen = array_slice($gg, ($v - 1) * 15, 15);
@@ -245,7 +242,6 @@ class PostController extends Controller
 
     public function ExtraInfo_Post($ids, $user, $ifstories = null)
     {
-
         $bigarray = array();
 
         $user_degree = $user->expert()->value('years_as_expert');
@@ -343,6 +339,7 @@ class PostController extends Controller
         return array_values($bigarray);
 
     }
+
     public function like_or_cancellike_on_post($id)
     {
         $user = Auth::user();
@@ -513,7 +510,8 @@ class PostController extends Controller
 
             $followes_counts =  Page::where('id', $location_id)->value('follower_counts');
             $range = round($followes_counts / 20);
-        } else if ($location_type == 'App\Models\User') {
+        }
+         else if ($location_type == 'App\Models\User') {
             $friend = new FriendController;
             $friends_ids = $friend->showFriends($request)->count();
 
@@ -546,16 +544,17 @@ class PostController extends Controller
 
                 $comment_id = Comment::where('post_id', $id)->get();
 
-                foreach ($comment_id as $value) {
-                    $value->reactions()->delete();
-                    $value->reports()->delete();
-                }
+                // foreach ($comment_id as $value) {
+                //     $value->reactions()->delete();
+                //     $value->reports()->delete();
+                // }
 
 
                 $post->delete();
-                $post->comments()->delete();
-                $post->reactions()->delete();
-                $post->reports()->delete();
+            //    $comments= $post->comments()->delete();
+
+            //  $reactions=   $post->reactions()->delete();
+            //  $reports=   $post->reports()->delete();
 
 
 
@@ -624,8 +623,8 @@ class PostController extends Controller
 
 
                 $comment->delete();
-                $comment->reactions()->delete();
-                $comment->reports()->delete();
+                // $comment->reactions()->delete();
+                // $comment->reports()->delete();
 
 
 
@@ -643,7 +642,7 @@ class PostController extends Controller
         $my_com =  $this->getMyCommuites();
         $my_own_page = $request->user()->pages()->find($user->id);
         //  return [[$my_com],$my_own_page];
-        if ($my_own_page != null)
+      //  if ($my_own_page != null)
             return response()->json([
                 'Message' => 'success',
                 'Communites' => $my_com,
@@ -687,7 +686,7 @@ class PostController extends Controller
             ]);
         }
 
-        $share =     SharePost::create([
+        $share =SharePost::create([
             'shared_post' => $post_id,
             'current_post' => $post->id
         ]);
@@ -714,13 +713,7 @@ class PostController extends Controller
                 $arr[] = $key;
             }
         }
-        // $arr2 = [];
-        // foreach ($arr as $final) {
-        //     $new_datetime = $final->toISOString();
-        //     $arr2[] = $new_datetime;
-        // }
-
-
+     
         $users = Post::whereIn('user_id', $friends_ids)->where('type', 'Story')->whereIn('created_at', $arr)->pluck('user_id')->toArray();
         $all = array_unique($users);
 
@@ -823,10 +816,60 @@ class PostController extends Controller
             }
         }
     }
+    public function editpost(Request $request ,$id){
+        $user_id=  $request->user()->id;
+
+      $post=  Post::where('id',$id)->where('user_id',$user_id)->value('id');
+        if($post == null){
+            return response()->json([
+                'message'=>'you cant'
+            ]);
+
+
+        }
+        else
+            {
+                $post=  Post::where('id',$id)->where('user_id',$user_id)->update($request->all());
+            }
+             $updated= Post::where('id',$id)->where('user_id',$user_id)->get();
+             return response()->json([
+                'message'=>'updated',
+                'data'=>$updated
+            ]);
+    }
+
+    public function deletepost(Request $request ,$id){
+        $user_id=  $request->user()->id;
+
+      $post=  Post::where('id',$id)->where('user_id',$user_id)->value('id');
+        if($post == null){
+            return response()->json([
+                'message'=>'you cant'
+            ]);
+
+
+        }
+        else
+            {
+                $post=  Post::where('id',$id)->where('user_id',$user_id);
+
+
+                // $post->comments()->delete();
+                // $post->reactions()->delete();
+                // $post->reports()->delete();
+                $post->delete();
+
+
+            }
+             return response()->json([
+                'message'=>'deleted',
+            ]);
+    }
 
     public function getcommunityInfo(Request $request, $community_id)
     {
- $user= Auth::user();
+
+     $user= Auth::user();
      $user_id=  $request->user()->id;
 
         $type=$request->type;

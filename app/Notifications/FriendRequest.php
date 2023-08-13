@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
-
+use Illuminate\Notifications\Messages\DatabaseMessage;
 class FriendRequest extends Notification
 {
     use Queueable;
@@ -14,7 +14,7 @@ class FriendRequest extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(private bool $is_sender, protected string $name, public string $message = '')
+    public function __construct(private bool $is_sender, protected string $name, public $image = '', public string $message = '')
     {
         //
     }
@@ -26,7 +26,7 @@ class FriendRequest extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['broadcast'];
+        return ['broadcast', 'database'];
     }
 
     /**
@@ -46,7 +46,21 @@ class FriendRequest extends Notification
             'Message' => $this->message
         ]);
     }
+    public function toDatabase(object $notifiable)
+    {
 
+        if ($this->message == null) {
+            if ($this->is_sender)
+                $message =  $this->message = 'You Have New Friend Request from: ' . $this->name;
+            else
+                $message =  $this->message = $this->name . ' has just Accept your Friend Request';
+        }
+
+
+
+        return[ $message];
+
+    }
     /**
      * Get the array representation of the notification.
      *

@@ -18,6 +18,7 @@ class PageInvitation extends Notification
         private bool $is_inviter,
         protected string $name,
         protected string $page_name,
+        public $image='',
         public string $message = ''
     ) {
         //
@@ -30,7 +31,7 @@ class PageInvitation extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['broadcast'];
+        return ['broadcast','database'];
     }
 
     /**
@@ -50,7 +51,18 @@ class PageInvitation extends Notification
             'Message' => $this->message
         ]);
     }
+    public function toDatabase(object $notifiable)
+    {
+        if ($this->message == null) {
+            if ($this->is_inviter)
+              $message=  $this->message = $this->name . ' Invite You to Follow this Page: ' . $this->page_name;
+            else
+              $message=  $this->message = $this->name . ' has just Accept your Invitation to Follow this Page: ' . $this->page_name;
+        }
 
+        return[ $message];
+
+    }
     /**
      * Get the array representation of the notification.
      *

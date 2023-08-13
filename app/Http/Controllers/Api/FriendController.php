@@ -15,6 +15,7 @@ class FriendController extends Controller
             return 'You Can\'t Send Friend Request to yourself';
 
         $received = $request->user()->receivers()->where('friends.sender', $request->id)->first();
+         $sender_image=$request->user()->getFirstMedia('avatars')?->original_url;
 
         if ($received == null) {
             $request->user()->senders()->attach($request->id);
@@ -24,7 +25,8 @@ class FriendController extends Controller
             $receiver->notify(
                 new FriendRequest(
                     true,
-                    $request->user()->name
+                    $request->user()->name,
+                    $sender_image
                 )
             );
         } else
@@ -42,6 +44,7 @@ class FriendController extends Controller
             ->whereNull('friends.is_approved')
             ->detach($request->id);
 
+
         // TODO : Delete Notification From Database.
 
         return response()->json([
@@ -55,13 +58,16 @@ class FriendController extends Controller
             ->where('friends.sender', $request->id)
             ->update(['is_approved' => true]);
 
+            $accepter_image=$request->user()->getFirstMedia('avatars')?->original_url;
+
         // TODO : Send Notification to Sender
 
         $sender = User::find($request->id);
         $sender->notify(
             new FriendRequest(
                 false,
-                $request->user()->name
+                $request->user()->name,
+                $accepter_image
             )
         );
 
