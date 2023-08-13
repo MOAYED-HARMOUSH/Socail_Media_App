@@ -33,7 +33,7 @@ return [
         'media' => [
             'driver' => 'local',
             'root'   => public_path('storage'),
-            'url'    => env('APP_URL').'/media',
+            'url'    => env('APP_URL').'/storage',
         ],
 
         'local' => [

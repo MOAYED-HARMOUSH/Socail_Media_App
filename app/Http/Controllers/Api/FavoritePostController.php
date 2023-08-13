@@ -16,14 +16,11 @@ class FavoritePostController extends Controller
         ]);
     }
 
-    public function show(Request $request)
+    public function show(Request $request, PostController $postController)
     {
-        $saved_posts = $request->user()->favoritePosts()->get();
-
-        return response()->json([
-            'Message' => 'success',
-            'saved posts' => $saved_posts
-        ]);
+        $saved_posts = $request->user()->favoritePosts()->pluck('id');
+        // $saved_posts->pluck('id');
+        return $postController->ExtraInfo_Post($saved_posts, $request->user());
     }
 
     public function destroy(Request $request)
