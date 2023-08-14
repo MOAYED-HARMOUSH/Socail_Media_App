@@ -12,7 +12,7 @@ use App\Models\User;
 
 class SearchController extends Controller
 {
-    public function search(Request $request)
+    public function search(Request $request, PostController $postController)
     {
         $this->addIfNotExist($request);
 
@@ -29,9 +29,10 @@ class SearchController extends Controller
                 return Page::where('name', 'like', '%' . $request->search . '%')
                     ->get();
             case 'post':
-                return Post::where('title', 'like', '%' . $request->search . '%')
+                $post = Post::where('title', 'like', '%' . $request->search . '%')
                     ->orWhere('content', 'like', '%' . $request->search . '%')
-                    ->get();
+                    ->get()->pluck('id');
+                return $postController->ExtraInfo_Post($post, $request->user());
             case 'comment':
                 return Comment::Where('content', 'like', '%' . $request->search . '%')
                     ->get();
@@ -43,9 +44,9 @@ class SearchController extends Controller
 
     private function addIfNotExist(Request $request)
     {
-        $history = $request->user()->searchHistory()->firstOrCreate([
-            'words' => json_encode([$request->search])
-        ]);
+        $history = $request->user()->searchHistory()->first();
+        if ($history == null)
+            $request->user()->searchHistory()->create(['words' => json_encode([$request->search])]);
 
         $words = json_decode($history->words);
         if (!in_array($request->search, $words)) {
