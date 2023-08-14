@@ -20,7 +20,7 @@ use App\Models\Page;
 use App\Models\Reaction;
 use App\Models\Report;
 use App\Models\SharePost;
-
+// use App\Notifications\Comment;
 use Illuminate\Support\Str;
 
 
@@ -35,14 +35,12 @@ class PostController extends Controller
         $user = Auth::user();
         $user = User::find($user->id);
 
-        $type=$request->type;
-        if($type=='Challenge')
-        {
-            $type='Accepted Challenge';
+        $type = $request->type;
+        if ($type == 'Challenge') {
+            $type = 'Accepted Challenge';
+        } else if ($type != 'Challenge') {
+            $type = $request->type;
         }
-        else if($type !='Challenge')
-
-           {   $type=$request->type;}
 
 
         $post = $user->locationPosts()->create([
@@ -80,14 +78,12 @@ class PostController extends Controller
         $user = Auth::user();
         $user = User::find($user->id);
 
-        $type=$request->type;
-        if($type=='Challenge')
-        {
-            $type='Accepted Challenge';
+        $type = $request->type;
+        if ($type == 'Challenge') {
+            $type = 'Accepted Challenge';
+        } else if ($type != 'Challenge') {
+            $type = $request->type;
         }
-        else if($type !='Challenge')
-
-           {   $type=$request->type;}
 
 
         $page = Page::find($id);
@@ -161,27 +157,27 @@ class PostController extends Controller
         $message = 'created ';
     }
 
-    public  function gethomeposts(Request $request ,$ids=[])
+    public  function gethomeposts(Request $request, $ids = [])
     {
 
         $user = Auth::user();
         $user = User::find($user->id);
 
-        $l = counterpost::where('user_id', $user->id)->where('location','homepage')->value('counter_post');
+        $l = counterpost::where('user_id', $user->id)->where('location', 'homepage')->value('counter_post');
 
         if ($l == 0) {
             counterpost::create([
                 'counter_post' => $l + 1,
                 'user_id' => $user->id,
-                'location'=>'homepage'
+                'location' => 'homepage'
             ]);
         } else {
-            $count = counterpost::where('user_id', $user->id)->where('location','homepage')->update([
+            $count = counterpost::where('user_id', $user->id)->where('location', 'homepage')->update([
                 'counter_post' => $l + 1
             ]);
         }
 
-           $v =   counterpost::where('user_id', $user->id)->where('location','homepage')->value('counter_post');
+        $v =   counterpost::where('user_id', $user->id)->where('location', 'homepage')->value('counter_post');
 
 
         $communites_ids = ($this->getMyCommuites())->pluck('id');
@@ -228,11 +224,11 @@ class PostController extends Controller
 
         $first_fifteen = array_slice($gg, ($v - 1) * 15, 15);
         if ($first_fifteen == null) {
-             $count = counterpost::where('user_id', $user->id)->where('location','homepage')->delete();
+            $count = counterpost::where('user_id', $user->id)->where('location', 'homepage')->delete();
 
-             return 'end posts >> referssh';
-        //      //$l=0;
-        //    return $this->gethomeposts($request );
+            return 'end posts >> referssh';
+            //      //$l=0;
+            //    return $this->gethomeposts($request );
         }
         return response()->json([
             'Message' => 'success',
@@ -326,9 +322,9 @@ class PostController extends Controller
                     $fullPath = str_replace('\\', '/', $media->getUrl());
                     $publicPath = Str::after($fullPath, 'http://127.0.0.1:8000/');
                     return $publicPath;
-                      })->all();
+                })->all();
 
-                $myArray = array_merge([$poster], [$poster_photo], [$poster_degree], [$diff], [$post], [$me], [$my_reacion], [$shared]);
+                $myArray = array_merge([$poster], $poster_photo, [$poster_degree], [$diff], [$post], [$me], [$my_reacion], [$shared]);
 
                 $bigarray[$value] = $myArray;
             }
@@ -337,7 +333,6 @@ class PostController extends Controller
         }
 
         return array_values($bigarray);
-
     }
 
     public function like_or_cancellike_on_post($id)
@@ -365,15 +360,14 @@ class PostController extends Controller
                 'type' => 'like'
             ]);
 
-            $id=$post->user()->get('id');
-            $user_owner=User::find($id);
+            $id = $post->user()->get('id');
+            $user_owner = User::find($id);
             $user_owner->notify(new \App\Notifications\Reaction(
                 $user->name,
                 'like',
                 'post',
                 $post->content
             ));
-
         } else {
             $post->reactions()->create([
                 'user_id' => $user->id,
@@ -381,8 +375,8 @@ class PostController extends Controller
             ]);
             $post->update(['likes_counts' => $likes_on_this + 1]);
 
-            $id=$post->user()->get('id');
-            $user_owner=User::find($id);
+            $id = $post->user()->get('id');
+            $user_owner = User::find($id);
             $user_owner->notify(new \App\Notifications\Reaction(
                 $user->name,
                 'like',
@@ -428,7 +422,6 @@ class PostController extends Controller
                     $post->content
                 )
             );
-
         } else {
             $post->reactions()->create([
                 'user_id' => $user->id,
@@ -455,14 +448,14 @@ class PostController extends Controller
         $user = Auth::user();
         $user = User::find($user->id);
 
-        $post=Post::find($id);
-        $id=$post->user()->get('id');
-        $user_owner=User::find($id);
-        $user_owner->notify(new \App\Notifications\Comment(
-            $user->name,
-            'post',
-            $post->content
-        ));
+        $post = Post::find($id);
+      //  $id = $post->user()->get('id');
+        $user_owner = User::find($id);
+        // $user_owner->notify(new \App\Notifications\Comment(
+        //     $user->name,
+        //     'post',
+        //     $post->content
+        // ));
 
         return $user->comments()->create([
             'content' => $request->content,
@@ -473,7 +466,54 @@ class PostController extends Controller
     {
 
         $post = Post::where('id', $id)->first();
-        return $post->comments;
+        // foreach ($p as $key => $value) {
+        //     # code...
+        // }
+        $name =
+            $array = [];
+        foreach ($post->comments as $key) {
+            $poster = $key->user->first_name . ' ' . $key->user->last_name;
+            $comment_time = $key->created_at;
+
+            $old_datetime = Carbon::parse($comment_time)->format('Y-m-d H:i');
+            $day_name = date('l', strtotime($comment_time));
+
+            $now = Carbon::now();
+
+
+            if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 48) {
+                $diff = 'yestarday at : ' . Carbon::parse($comment_time)->format(' h:i A');
+            } else if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 168) {
+                $diff = $day_name . ' at :' .  Carbon::parse($comment_time)->format(' h:i A');
+            } else if ($now->diffInHours($old_datetime) > 24) {
+                $diff = Carbon::parse($old_datetime)->format('Y-m-d h:i A');
+            } else if ($now->diffInMinutes($old_datetime) < 60) {
+                $diff = $now->diffInMinutes($old_datetime) . ' minutes ago';
+            } else {
+                $diff = $now->diffInHours($old_datetime) . ' hours ago';
+            }
+
+            $myreaction_on_this =  Reaction::where('location_type', 'App\Models\Comment')
+            ->where('location_id', $key->id)->where('user_id', $key->user->id)->value('type');
+
+        if ($myreaction_on_this != null) {
+            $my_reacion = 'my _reaction_on_this_post is ' . $myreaction_on_this;
+        } else
+            $my_reacion = 'you have no reaction on this post ';
+            $array[] = [
+                'commenter' => $poster,
+                'time' => $diff,
+                'comment' => $key,
+                'my_reaction'=>$my_reacion
+            ];
+
+
+        }
+            return response()->json([
+                'Message' => 'success',
+                'data' => $array
+            ]);
+
     }
 
     public function like_or_cancellike_on_comment($id)
@@ -502,17 +542,16 @@ class PostController extends Controller
                 'type' => 'like'
             ]);
 
-            $id = $comment->user()->get('id');
-            $user_owner = User::find($id);
-            $user_owner->notify(
-                new \App\Notifications\Reaction(
-                    $user->name,
-                    'like',
-                    'comment',
-                    $comment->content
-                )
-            );
-
+            // $id = $comment->user()->get('id');
+            // $user_owner = User::find($id);
+            // $user_owner->notify(
+            //     new \App\Notifications\Reaction(
+            //         $user->name,
+            //         'like',
+            //         'comment',
+            //         $comment->content
+            //     )
+            // );
         } else {
             $comment->reactions()->create([
                 'user_id' => $user->id,
@@ -520,16 +559,16 @@ class PostController extends Controller
             ]);
             $comment->update(['likes_counts' => $likes_on_this + 1]);
 
-            $id = $comment->user()->get('id');
-            $user_owner = User::find($id);
-            $user_owner->notify(
-                new \App\Notifications\Reaction(
-                    $user->name,
-                    'like',
-                    'comment',
-                    $comment->content
-                )
-            );
+            //$id = $comment->user()->get('id');
+            // $user_owner = User::find($id);
+            // $user_owner->notify(
+            //     new \App\Notifications\Reaction(
+            //         $user->name,
+            //         'like',
+            //         'comment',
+            //         $comment->content
+            //     )
+            // );
 
             return 'like';
         }
@@ -559,17 +598,16 @@ class PostController extends Controller
                 'type' => 'dislikes'
             ]);
 
-            $id = $comment->user()->get('id');
-            $user_owner = User::find($id);
-            $user_owner->notify(
-                new \App\Notifications\Reaction(
-                    $user->name,
-                    'dislike',
-                    'comment',
-                    $comment->content
-                )
-            );
-
+            // $id = $comment->user()->get('id');
+            // $user_owner = User::find($id);
+            // $user_owner->notify(
+            //     new \App\Notifications\Reaction(
+            //         $user->name,
+            //         'dislike',
+            //         'comment',
+            //         $comment->content
+            //     )
+            // );
         } else {
             $comment->reactions()->create([
                 'user_id' => $user->id,
@@ -577,16 +615,16 @@ class PostController extends Controller
             ]);
             $comment->update(['dislikes_counts' => $dislikes_on_this + 1]);
 
-            $id = $comment->user()->get('id');
-            $user_owner = User::find($id);
-            $user_owner->notify(
-                new \App\Notifications\Reaction(
-                    $user->name,
-                    'dislike',
-                    'comment',
-                    $comment->content
-                )
-            );
+            // $id = $comment->user()->get('id');
+            // $user_owner = User::find($id);
+            // $user_owner->notify(
+            //     new \App\Notifications\Reaction(
+            //         $user->name,
+            //         'dislike',
+            //         'comment',
+            //         $comment->content
+            //     )
+            // );
 
             return 'dislikes';
         }
@@ -611,13 +649,12 @@ class PostController extends Controller
 
             $followes_counts =  Page::where('id', $location_id)->value('follower_counts');
             $range = round($followes_counts / 20);
-        }
-         else if ($location_type == 'App\Models\User') {
+        } else if ($location_type == 'App\Models\User') {
             $friend = new FriendController;
             $friends_ids = $friend->showFriends($request)->count();
 
 
-            $range = round( $friends_ids/ 30);
+            $range = round($friends_ids / 30);
         }
         $halfrange = round($range) / 2;
 
@@ -652,10 +689,10 @@ class PostController extends Controller
 
 
                 $post->delete();
-            //    $comments= $post->comments()->delete();
+                //    $comments= $post->comments()->delete();
 
-            //  $reactions=   $post->reactions()->delete();
-            //  $reports=   $post->reports()->delete();
+                //  $reactions=   $post->reactions()->delete();
+                //  $reports=   $post->reports()->delete();
 
 
 
@@ -743,13 +780,13 @@ class PostController extends Controller
         $my_com =  $this->getMyCommuites();
         $my_own_page = $request->user()->pages()->find($user->id);
         //  return [[$my_com],$my_own_page];
-      //  if ($my_own_page != null)
-            return response()->json([
-                'Message' => 'success',
-                'Communites' => $my_com,
-                'Pages' => [$my_own_page],
-                'my_profile' => $user
-            ]);
+        //  if ($my_own_page != null)
+        return response()->json([
+            'Message' => 'success',
+            'Communites' => $my_com,
+            'Pages' => [$my_own_page],
+            'my_profile' => $user
+        ]);
     }
     public function share_post_2(Request $request, $post_id, $location_id)
     {
@@ -787,7 +824,7 @@ class PostController extends Controller
             ]);
         }
 
-        $share =SharePost::create([
+        $share = SharePost::create([
             'shared_post' => $post_id,
             'current_post' => $post->id
         ]);
@@ -814,7 +851,7 @@ class PostController extends Controller
                 $arr[] = $key;
             }
         }
-     
+
         $users = Post::whereIn('user_id', $friends_ids)->where('type', 'Story')->whereIn('created_at', $arr)->pluck('user_id')->toArray();
         $all = array_unique($users);
 
@@ -873,20 +910,16 @@ class PostController extends Controller
         } else if ($post_type != 'Challenge') {
             return ' post isnt challenge .. go out donkey';
         } else {
-            if ($location_type == 'App\Models\Community')
-            {
+            if ($location_type == 'App\Models\Community') {
                 $subscribers =  CommunityUser::where('community_id', $location_id)->pluck('user_id');
                 $numexperts = Expert::whereIn('user_id', $subscribers)->count();
-                $range = round( $numexperts / 10);
-
-
+                $range = round($numexperts / 10);
             }
 
 
 
             $user_agree = Agree::where('post_id', $id)->where('user_id', $user->id)->value('id');
-            if ($user_agree == null)
-            {
+            if ($user_agree == null) {
                 $post->agrees()->create([
 
                     'user_id' => $user->id,
@@ -900,13 +933,12 @@ class PostController extends Controller
 
                 if ($count  == $range) {
                     $post->update([
-                        'type'=> 'Accepted Challenge'
+                        'type' => 'Accepted Challenge'
                     ]);
                     return 'Voted .. and post ACCEPTED';
                 }
                 return 'voted';
-            } else
-            {
+            } else {
                 $user_agree = Agree::where('post_id', $id)->where('user_id', $user->id)->delete();
 
                 $post->update([
@@ -917,67 +949,59 @@ class PostController extends Controller
             }
         }
     }
-    public function editpost(Request $request ,$id){
-        $user_id=  $request->user()->id;
+    public function editpost(Request $request, $id)
+    {
+        $user_id =  $request->user()->id;
 
-      $post=  Post::where('id',$id)->where('user_id',$user_id)->value('id');
-        if($post == null){
+        $post =  Post::where('id', $id)->where('user_id', $user_id)->value('id');
+        if ($post == null) {
             return response()->json([
-                'message'=>'you cant'
+                'message' => 'you cant'
             ]);
-
-
+        } else {
+            $post =  Post::where('id', $id)->where('user_id', $user_id)->update($request->all());
         }
-        else
-            {
-                $post=  Post::where('id',$id)->where('user_id',$user_id)->update($request->all());
-            }
-             $updated= Post::where('id',$id)->where('user_id',$user_id)->get();
-             return response()->json([
-                'message'=>'updated',
-                'data'=>$updated
-            ]);
+        $updated = Post::where('id', $id)->where('user_id', $user_id)->get();
+        return response()->json([
+            'message' => 'updated',
+            'data' => $updated
+        ]);
     }
 
-    public function deletepost(Request $request ,$id){
-        $user_id=  $request->user()->id;
+    public function deletepost(Request $request, $id)
+    {
+        $user_id =  $request->user()->id;
 
-      $post=  Post::where('id',$id)->where('user_id',$user_id)->value('id');
-        if($post == null){
+        $post =  Post::where('id', $id)->where('user_id', $user_id)->value('id');
+        if ($post == null) {
             return response()->json([
-                'message'=>'you cant'
+                'message' => 'you cant'
             ]);
+        } else {
+            $post =  Post::where('id', $id)->where('user_id', $user_id);
 
 
+            // $post->comments()->delete();
+            // $post->reactions()->delete();
+            // $post->reports()->delete();
+            $post->delete();
         }
-        else
-            {
-                $post=  Post::where('id',$id)->where('user_id',$user_id);
-
-
-                // $post->comments()->delete();
-                // $post->reactions()->delete();
-                // $post->reports()->delete();
-                $post->delete();
-
-
-            }
-             return response()->json([
-                'message'=>'deleted',
-            ]);
+        return response()->json([
+            'message' => 'deleted',
+        ]);
     }
 
     public function getcommunityInfo(Request $request, $community_id)
     {
 
-     $user= Auth::user();
-     $user_id=  $request->user()->id;
+        $user = Auth::user();
+        $user_id =  $request->user()->id;
 
-        $type=$request->type;
+        $type = $request->type;
         $locationt = 'community.' . $type;
 
 
-       $l = counterpost::where('location', $locationt)->where('user_id', $user->id)->value('counter_post');
+        $l = counterpost::where('location', $locationt)->where('user_id', $user->id)->value('counter_post');
 
         if ($l == 0) {
             counterpost::create([
@@ -1001,11 +1025,11 @@ class PostController extends Controller
             return $publicPath;
         })->all();
 
-        if ($type =='all') {
+        if ($type == 'all') {
             $posts_ids = Post::where('location_type', 'App\Models\Community')->where('location_id', $community_id)->pluck('id');
         } else {
 
-             $posts_ids = Post::where('location_type', 'App\Models\Community')->where('location_id', $community_id)->where('type', $type)->pluck('id');
+            $posts_ids = Post::where('location_type', 'App\Models\Community')->where('location_id', $community_id)->where('type', $type)->pluck('id');
         }
 
         $posts_controller = new PostController;
@@ -1029,10 +1053,9 @@ class PostController extends Controller
 
         $first_fifteen = array_slice($gg, ($v - 1) * 15, 15);
         if ($first_fifteen == null) {
-            $count = counterpost::where('location',$locationt)->where('user_id', $user->id)->delete();
+            $count = counterpost::where('location', $locationt)->where('user_id', $user->id)->delete();
 
             return 'end posts >> referssh';
-
         }
         return response()->json([
             'Message' => 'success',
@@ -1042,6 +1065,4 @@ class PostController extends Controller
 
         ]);
     }
-
-
 }
