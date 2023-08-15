@@ -487,7 +487,6 @@ class PostController extends Controller
 
             $myreaction_on_this =  Reaction::where('location_type', 'App\Models\Comment')
             ->where('location_id', $key->id)->where('user_id', $request->user()->id)->value('type');
-            echo $key->user->id;
 
         if ($myreaction_on_this != null) {
             $my_reacion = 'my _reaction_on_this_post is ' . $myreaction_on_this;
