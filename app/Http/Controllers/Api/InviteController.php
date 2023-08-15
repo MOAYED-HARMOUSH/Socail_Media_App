@@ -76,10 +76,9 @@ class InviteController extends Controller
             $inviter = User::find($request->sender_id);
         for Security Issue
         */
-
         $inviter = $request->user()->invitees()
             ->where([
-                ['page_id', $request->page_id],
+                ['page_id', $request->id],
                 ['sender', $request->sender_id]
             ])
             ->first();
@@ -89,20 +88,20 @@ class InviteController extends Controller
             ->where('page_id', $request->id)
             ->delete();
 
-        $page_name = Page::find($request->id)->name;
+      return  $page_name = Page::find($request->id)->name;
 
         FollowPageController::follow($request);
 
         // TODO : Send Notification to All Senders
 
-        $inviter->notify(
-            new PageInvitation(
-                false,
-                $request->user()->name,
-                $page_name,
-                $accepter_image
-            )
-        );
+            $inviter->notify(
+                new PageInvitation(
+                    false,
+                    $request->user()->name,
+                    $page_name,
+                    $accepter_image
+                )
+            );
 
         return response()->json(['Message' => 'Success']);
     }

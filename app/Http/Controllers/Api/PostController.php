@@ -442,12 +442,12 @@ class PostController extends Controller
             return 'dislikes';
         }
     }
-    public function create_comment_on_post(Request $request, $id)
+    public function create_comment_on_post(Request $request, $post_id)
     {
         $user = Auth::user();
         $user = User::find($user->id);
 
-        $post = Post::find($id);
+        $post = Post::find($post_id);
         $id = $post->user()->get('id');
         $user_owner = User::find($id)->first();
         $user_owner->notify(new \App\Notifications\Comment(
@@ -458,7 +458,7 @@ class PostController extends Controller
 
         return $user->comments()->create([
             'content' => $request->content,
-            'post_id' => $id,
+            'post_id' => $post_id,
         ]);
     }
     public function get_comments_on_post($id)
