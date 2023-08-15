@@ -32,7 +32,7 @@ class Comment extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['broadcast'];
+        return ['broadcast','database'];
     }
 
     /**
@@ -49,7 +49,14 @@ class Comment extends Notification
             'Message' => $this->message
         ]);
     }
+    public function toDatabase(object $notifiable)
+{
+    if ($this->message == null) {
+    $message=    $this->message = "$this->name has just commented on your $this->location: $this->content";
+    }
 
+    return [$message];
+}
     /**
      * Get the array representation of the notification.
      *

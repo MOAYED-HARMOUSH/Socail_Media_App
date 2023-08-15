@@ -29,5 +29,5 @@ Route::get('createRandomUsers{id}', [UserController::class, 'createRandomUsers']
 Route::get('createRandomSpecialties{id}', [UserController::class, 'createRandomSpecialties']);
 Route::get('createRandomPosts{id}', [UserController::class, 'createRandomPosts']);
 
-Route::post('search', [SearchController::class, 'search']);
-Route::get('search/history/show', [SearchController::class, 'index']);
+Route::post('search', [SearchController::class, 'search'])->middleware('auth:sanctum');
+Route::get('search/history/show', [SearchController::class, 'index'])->middleware('auth:sanctum');

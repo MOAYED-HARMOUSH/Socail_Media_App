@@ -309,8 +309,7 @@ class PostController extends Controller
                 $poster_id =  $post->user->id;
                 $poster_photo = collect(Media::where('model_id', $poster_id)->where('collection_name', 'avatars')->get())->map(function ($media) {
                     return $media->getUrl();
-                })->all();
-
+                })->first();
 
                 $photos_media = $post->photos()->where('post_id', $value)->pluck('media_id');
 
@@ -323,7 +322,6 @@ class PostController extends Controller
                     $publicPath = Str::after($fullPath, 'http://127.0.0.1:8000/');
                     return $publicPath;
                 })->all();
-                
                 $myArray = array_merge([$poster], [$poster_photo], [$poster_degree], [$diff], [$post], [$me], [$my_reacion], [$shared]);
 
                 $bigarray[$value] = $myArray;
@@ -361,7 +359,7 @@ class PostController extends Controller
             ]);
 
             $id = $post->user()->get('id');
-            $user_owner = User::find($id);
+            $user_owner = User::find($id)->first();
             $user_owner->notify(new \App\Notifications\Reaction(
                 $user->name,
                 'like',
@@ -376,7 +374,7 @@ class PostController extends Controller
             $post->update(['likes_counts' => $likes_on_this + 1]);
 
             $id = $post->user()->get('id');
-            $user_owner = User::find($id);
+            $user_owner = User::find($id)->first();
             $user_owner->notify(new \App\Notifications\Reaction(
                 $user->name,
                 'like',
@@ -413,7 +411,7 @@ class PostController extends Controller
             ]);
 
             $id = $post->user()->get('id');
-            $user_owner = User::find($id);
+            $user_owner = User::find($id)->first();
             $user_owner->notify(
                 new \App\Notifications\Reaction(
                     $user->name,
@@ -430,7 +428,7 @@ class PostController extends Controller
             $post->update(['dislikes_counts' => $dislikes_on_this + 1]);
 
             $id = $post->user()->get('id');
-            $user_owner = User::find($id);
+            $user_owner = User::find($id)->first();
             $user_owner->notify(
                 new \App\Notifications\Reaction(
                     $user->name,
@@ -443,23 +441,23 @@ class PostController extends Controller
             return 'dislikes';
         }
     }
-    public function create_comment_on_post(Request $request, $id)
+    public function create_comment_on_post(Request $request, $post_id)
     {
         $user = Auth::user();
         $user = User::find($user->id);
 
-        $post = Post::find($id);
-      //  $id = $post->user()->get('id');
-        $user_owner = User::find($id);
-        // $user_owner->notify(new \App\Notifications\Comment(
-        //     $user->name,
-        //     'post',
-        //     $post->content
-        // ));
+        $post = Post::find($post_id);
+        $id = $post->user()->get('id');
+        $user_owner = User::find($id)->first();
+        $user_owner->notify(new \App\Notifications\Comment(
+            $user->name,
+            'post',
+            $post->content
+        ));
 
         return $user->comments()->create([
             'content' => $request->content,
-            'post_id' => $id,
+            'post_id' => $post_id,
         ]);
     }
     public function get_comments_on_post($id)
@@ -542,16 +540,16 @@ class PostController extends Controller
                 'type' => 'like'
             ]);
 
-            // $id = $comment->user()->get('id');
-            // $user_owner = User::find($id);
-            // $user_owner->notify(
-            //     new \App\Notifications\Reaction(
-            //         $user->name,
-            //         'like',
-            //         'comment',
-            //         $comment->content
-            //     )
-            // );
+            $id = $comment->user()->get('id');
+            $user_owner = User::find($id)->first();
+            $user_owner->notify(
+                new \App\Notifications\Reaction(
+                    $user->name,
+                    'like',
+                    'comment',
+                    $comment->content
+                )
+            );
         } else {
             $comment->reactions()->create([
                 'user_id' => $user->id,
@@ -559,16 +557,16 @@ class PostController extends Controller
             ]);
             $comment->update(['likes_counts' => $likes_on_this + 1]);
 
-            //$id = $comment->user()->get('id');
-            // $user_owner = User::find($id);
-            // $user_owner->notify(
-            //     new \App\Notifications\Reaction(
-            //         $user->name,
-            //         'like',
-            //         'comment',
-            //         $comment->content
-            //     )
-            // );
+            $id = $comment->user()->get('id');
+            $user_owner = User::find($id)->first();
+            $user_owner->notify(
+                new \App\Notifications\Reaction(
+                    $user->name,
+                    'like',
+                    'comment',
+                    $comment->content
+                )
+            );
 
             return 'like';
         }
@@ -598,16 +596,16 @@ class PostController extends Controller
                 'type' => 'dislikes'
             ]);
 
-            // $id = $comment->user()->get('id');
-            // $user_owner = User::find($id);
-            // $user_owner->notify(
-            //     new \App\Notifications\Reaction(
-            //         $user->name,
-            //         'dislike',
-            //         'comment',
-            //         $comment->content
-            //     )
-            // );
+            $id = $comment->user()->get('id');
+            $user_owner = User::find($id)->first();
+            $user_owner->notify(
+                new \App\Notifications\Reaction(
+                    $user->name,
+                    'dislike',
+                    'comment',
+                    $comment->content
+                )
+            );
         } else {
             $comment->reactions()->create([
                 'user_id' => $user->id,
@@ -615,16 +613,16 @@ class PostController extends Controller
             ]);
             $comment->update(['dislikes_counts' => $dislikes_on_this + 1]);
 
-            // $id = $comment->user()->get('id');
-            // $user_owner = User::find($id);
-            // $user_owner->notify(
-            //     new \App\Notifications\Reaction(
-            //         $user->name,
-            //         'dislike',
-            //         'comment',
-            //         $comment->content
-            //     )
-            // );
+            $id = $comment->user()->get('id');
+            $user_owner = User::find($id)->first();
+            $user_owner->notify(
+                new \App\Notifications\Reaction(
+                    $user->name,
+                    'dislike',
+                    'comment',
+                    $comment->content
+                )
+            );
 
             return 'dislikes';
         }

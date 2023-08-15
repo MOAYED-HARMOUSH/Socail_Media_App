@@ -31,7 +31,7 @@ class Reaction extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['broadcast'];
+        return ['broadcast','database'];
     }
 
     /**
@@ -47,6 +47,15 @@ class Reaction extends Notification
             'Title' => 'New Reaction',
             'Message' => $this->message
         ]);
+    }
+    public function toDatabase(object $notifiable)
+    {
+        if ($this->message == null) {
+         $message=   $this->message = "$this->name has just $this->type on your $this->location: $this->content";
+        }
+
+        return[ $message];
+
     }
 
     /**
