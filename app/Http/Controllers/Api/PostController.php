@@ -495,10 +495,19 @@ class PostController extends Controller
             $myreaction_on_this =  Reaction::where('location_type', 'App\Models\Comment')
             ->where('location_id', $key->id)->where('user_id', $key->user->id)->value('type');
 
+/* $myreaction_on_this =  Reaction::where('location_type', 'App\Models\Post')
+                    ->where('location_id', $value)->where('user_id', $user->id)->value('type');
+
+                if ($myreaction_on_this != null) {
+                    $my_reacion = 'my _reaction_on_this_post is ' . $myreaction_on_this;
+                } else
+                    $my_reacion = 'you have no reaction on this post '; */
+
         if ($myreaction_on_this != null) {
             $my_reacion = 'my _reaction_on_this_post is ' . $myreaction_on_this;
         } else
             $my_reacion = 'you have no reaction on this post ';
+
             $array[] = [
                 'commenter' => $poster,
                 'time' => $diff,
@@ -787,41 +796,43 @@ class PostController extends Controller
             'my_profile' => $user
         ]);
     }
-    public function share_post_2(Request $request, $post_id, $location_id)
+    public function share_post_2(Request $request, $post_id)
     {
         $user = Auth::user();
         $user = User::find($user->id);
 
-        $place_type = $request->place_type;
-        $location_type = '';
+     //   $place_type = $request->place_type;
+        //$location_type = '';
 
-        if ($place_type == 'community') {
-            $community = Community::find($location_id);
-            $post = $community->posts()->create([
-                'title' => $request->title,
-                'content' => $request->content,
-                'type' => $request->type,
-                'user_id' => $user->id
-            ]);
-        } else if ($place_type == 'page') {
+        // if ($place_type == 'community') {
+        //     $community = Community::find($location_id);
+        //     $post = $community->posts()->create([
+        //         'title' => $request->title,
+        //         'content' => $request->content,
+        //         'type' => $request->type,
+        //         'user_id' => $user->id
+        //     ]);
+        // } else if ($place_type == 'page') {
 
 
-            $page = Page::find($location_id);
+        //     $page = Page::find($location_id);
 
-            $post = $page->posts()->create([
-                'title' => $request->title,
-                'content' => $request->content,
-                'type' => $request->type,
-                'user_id' => $user->id
-            ]);
-        } else if ($place_type == 'profile') {
+        //     $post = $page->posts()->create([
+        //         'title' => $request->title,
+        //         'content' => $request->content,
+        //         'type' => $request->type,
+        //         'user_id' => $user->id
+        //     ]);
+        // } else
+
+
             $post = $user->locationPosts()->create([
                 'title' => $request->title,
                 'content' => $request->content,
                 'type' => $request->type,
                 'user_id' => $user->id
             ]);
-        }
+
 
         $share = SharePost::create([
             'shared_post' => $post_id,

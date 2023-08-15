@@ -217,11 +217,11 @@ class MainSeeder extends Seeder
             {
                 $likes_on_this = Post::where('id', $po->id)->value('likes_counts');
 
-                $po->reactions()->create([
-                    'user_id' => $user[$i1]->id,
-                    'type' => 'like'
-                ]);
-                $po->update(['likes_counts' =>$likes_on_this + 1]);
+                // $po->reactions()->create([
+                //     'user_id' => $user[$i1]->id,
+                //     'type' => 'like'
+                // ]);
+                // $po->update(['likes_counts' =>$likes_on_this + 1]);
 
               $comment=  $user[$i1]->comments()->create([
                     'content' => fake()->text(),
@@ -229,13 +229,13 @@ class MainSeeder extends Seeder
                 ]);
 
 
-                    $comment->reactions()->create([
-                        'user_id' => $user[$i1]->id,
-                        'type' => 'dislikes'
-                    ]);
-                    $dislikes_on_this = Comment::where('id', $comment->id)->value('dislikes_counts');
+                    // $comment->reactions()->create([
+                    //     'user_id' => $user[$i1]->id,
+                    //     'type' => 'dislikes'
+                    // ]);
+                    // $dislikes_on_this = Comment::where('id', $comment->id)->value('dislikes_counts');
 
-                    $comment->update(['dislikes_counts' => $dislikes_on_this + 1]);
+                    // $comment->update(['dislikes_counts' => $dislikes_on_this + 1]);
 
 
 
