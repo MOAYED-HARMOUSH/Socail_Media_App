@@ -322,7 +322,6 @@ class PostController extends Controller
                     $publicPath = Str::after($fullPath, 'http://127.0.0.1:8000/');
                     return $publicPath;
                 })->all();
-
                 $myArray = array_merge([$poster], [$poster_photo], [$poster_degree], [$diff], [$post], [$me], [$my_reacion], [$shared]);
 
                 $bigarray[$value] = $myArray;
