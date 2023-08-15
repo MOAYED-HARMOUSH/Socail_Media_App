@@ -445,7 +445,6 @@ class PostController extends Controller
     {
         $user = Auth::user();
         $user = User::find($user->id);
-
         $post = Post::find($post_id);
         $id = $post->user()->get('id');
         $user_owner = User::find($id)->first();
@@ -460,15 +459,10 @@ class PostController extends Controller
             'post_id' => $post_id,
         ]);
     }
-    public function get_comments_on_post($id)
+    public function get_comments_on_post(Request $request,$id)
     {
-
         $post = Post::where('id', $id)->first();
-        // foreach ($p as $key => $value) {
-        //     # code...
-        // }
-        $name =
-            $array = [];
+
         foreach ($post->comments as $key) {
             $poster = $key->user->first_name . ' ' . $key->user->last_name;
             $comment_time = $key->created_at;
@@ -492,21 +486,14 @@ class PostController extends Controller
             }
 
             $myreaction_on_this =  Reaction::where('location_type', 'App\Models\Comment')
-            ->where('location_id', $key->id)->where('user_id', $key->user->id)->value('type');
-
-/* $myreaction_on_this =  Reaction::where('location_type', 'App\Models\Post')
-                    ->where('location_id', $value)->where('user_id', $user->id)->value('type');
-
-                if ($myreaction_on_this != null) {
-                    $my_reacion = 'my _reaction_on_this_post is ' . $myreaction_on_this;
-                } else
-                    $my_reacion = 'you have no reaction on this post '; */
+            ->where('location_id', $key->id)->where('user_id', $request->user()->id)->value('type');
+            echo $key->user->id;
 
         if ($myreaction_on_this != null) {
             $my_reacion = 'my _reaction_on_this_post is ' . $myreaction_on_this;
         } else
-            $my_reacion = 'you have no reaction on this post ';
-
+{            $my_reacion = 'you have no reaction on this post ';
+}
             $array[] = [
                 'commenter' => $poster,
                 'time' => $diff,

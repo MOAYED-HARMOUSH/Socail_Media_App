@@ -88,7 +88,7 @@ class InviteController extends Controller
             ->where('page_id', $request->id)
             ->delete();
 
-      return  $page_name = Page::find($request->id)->name;
+        $page_name = Page::find($request->id)->name;
 
         FollowPageController::follow($request);
 
@@ -125,7 +125,7 @@ class InviteController extends Controller
 
         return response()->json([
             'Message' => 'success',
-            'Requests' => $invitee_request
+            'Requests'=> $invitee_request
         ]);
     }
 
