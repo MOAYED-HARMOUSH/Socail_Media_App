@@ -462,6 +462,10 @@ class PostController extends Controller
     public function get_comments_on_post(Request $request,$id)
     {
         $post = Post::where('id', $id)->first();
+ $comments=$post->comments;
+
+
+        $array = []; // تعريف المتغير $array هنا
 
         foreach ($post->comments as $key) {
             $poster = $key->user->first_name . ' ' . $key->user->last_name;
@@ -502,11 +506,26 @@ class PostController extends Controller
 
 
         }
+        //return $array;
+
+        if($array== null)
+        {
+            return response()->json([
+                'Message' => 'no comments',
+                'data' => []
+            ]);
+        }else
             return response()->json([
                 'Message' => 'success',
                 'data' => $array
             ]);
 
+// else{
+//     return response()->json([
+//         'Message' => 'no comments',
+//         'data' =>[]
+//     ]);
+// }
     }
 
     public function like_or_cancellike_on_comment($id)
