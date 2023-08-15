@@ -309,8 +309,7 @@ class PostController extends Controller
                 $poster_id =  $post->user->id;
                 $poster_photo = collect(Media::where('model_id', $poster_id)->where('collection_name', 'avatars')->get())->map(function ($media) {
                     return $media->getUrl();
-                })->all();
-
+                })->first();
 
                 $photos_media = $post->photos()->where('post_id', $value)->pluck('media_id');
 
@@ -324,7 +323,7 @@ class PostController extends Controller
                     return $publicPath;
                 })->all();
 
-                $myArray = array_merge([$poster], $poster_photo, [$poster_degree], [$diff], [$post], [$me], [$my_reacion], [$shared]);
+                $myArray = array_merge([$poster], [$poster_photo], [$poster_degree], [$diff], [$post], [$me], [$my_reacion], [$shared]);
 
                 $bigarray[$value] = $myArray;
             }
