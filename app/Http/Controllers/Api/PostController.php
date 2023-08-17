@@ -183,7 +183,7 @@ class PostController extends Controller
         $v =   counterpost::where('user_id', $user->id)->where('location', 'homepage')->value('counter_post');
 
 
-        $communites_ids = ($this->getMyCommuites())->pluck('id');
+         $communites_ids = ($request->user()->communities)->pluck('id');
         $communites_posts_ids =  post::where('location_type', 'App\Models\Community')
             ->whereIn('location_id', $communites_ids)->pluck('id');
 

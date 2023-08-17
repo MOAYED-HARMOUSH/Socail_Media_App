@@ -274,12 +274,18 @@ class UserController extends Controller
         }
 
         $sortedNotifications = $notifications->sortByDesc('created_at');
-        return response()->json([
+        if($sortedNotifications != null)
+        {return response()->json([
             'message'=>'succes',
             'data'=>$sortedNotifications
-        ]);
+        ]);}
+        else{
+            return response()->json([
+                'message'=>'succes',
+                'data'=>[]
+            ]);
+        }
     }
-    // return $not[7];
 
 
     public function show_old_notification(Request $request)
@@ -287,11 +293,44 @@ class UserController extends Controller
 
         $notifications = $request->user()->readNotifications;
         $sortedNotifications = $notifications->sortByDesc('created_at');
+        foreach ($sortedNotifications as $key ) {
+            $old_datetime = Carbon::parse($key->read_at)->format('Y-m-d H:i');
+            $day_name = date('l', strtotime($key->read_at));
 
-        return response()->json([
+            $now = Carbon::now();
+
+
+            if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 48) {
+                $diff = 'yestarday at : ' . Carbon::parse($key->read_at)->format(' h:i A');
+            } else if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 168) {
+                $diff = $day_name . ' at :' .  Carbon::parse($key->read_at)->format(' h:i A');
+            } else if ($now->diffInHours($old_datetime) > 24) {
+                $diff = Carbon::parse($old_datetime)->format('Y-m-d h:i A');
+            } else if ($now->diffInMinutes($old_datetime) < 60) {
+                $diff = $now->diffInMinutes($old_datetime) . ' minutes ago';
+            } else {
+                $diff = $now->diffInHours($old_datetime) . ' hours ago';
+            }
+
+            $data= $key->data;
+            $string=strval($data[0]);
+        $response= response()->json([
             'message'=>'succes',
-            'data'=>$sortedNotifications
+            'data'=>  $string,
+            'read at'=>  $diff
         ]);
+        }
+
+        if($sortedNotifications != null)
+        {return $response;
+        }
+        else{
+            return response()->json([
+                'message'=>'succes',
+                'data'=>[],
+                'read_at'=>[]
+            ]);
+        }
     }
     public function get_my_profile_posts(Request $request)
     {
