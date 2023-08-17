@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('type');
             $table->morphs('notifiable');
             $table->json('data');
-            $table->string('image')->nullable();
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });

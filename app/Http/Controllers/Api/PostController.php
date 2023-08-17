@@ -124,7 +124,10 @@ class PostController extends Controller
         $user = Auth::user();
         $user = User::find($user->id)->id;
         $sub = CommunityUser::where('user_id', $user)->pluck('community_id');
-        return Community::whereIn('id', $sub)->get();
+        return response()->json([
+            'message'=> 'succes',
+            'data'=>Community::whereIn('id', $sub)->get()
+        ]);
     }
     public function getMyPagesasfollow()
     {
