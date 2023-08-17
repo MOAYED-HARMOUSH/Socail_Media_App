@@ -266,8 +266,10 @@ class UserController extends Controller
         }
 
         $sortedNotifications = $notifications->sortByDesc('created_at');
-
-        return $sortedNotifications;
+        return response()->json([
+            'message'=>'succes',
+            'data'=>$sortedNotifications
+        ]);
     }
        // return $not[7];
 
@@ -278,7 +280,10 @@ class UserController extends Controller
         $notifications= $request->user()->readNotifications;
         $sortedNotifications = $notifications->sortByDesc('created_at');
 
-        return $sortedNotifications;
+        return response()->json([
+            'message'=>'succes',
+            'data'=>$sortedNotifications
+        ]);
     }
     public function get_my_profile_posts(Request $request)
     {
