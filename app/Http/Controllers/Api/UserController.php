@@ -128,12 +128,20 @@ class UserController extends Controller
             else
                 $user->student()->create($request->all());
 
-        if ($request->has('companies'))
-            $user->expert()->updateOrCreate([
-                'companies' => json_encode(explode(',', $request->companies)),
-                'years_as_expert' => $request->years_as_expert,
-                'work_at_company' => $request->work_at_company
-            ]);
+        if ($request->has('companies')) {
+            if ($user->expert()->first() != null)
+                $user->expert()->first()->update([
+                    'companies' => json_encode(explode(',', $request->companies)),
+                    'years_as_expert' => $request->years_as_expert,
+                    'work_at_company' => $request->work_at_company
+                ]);
+            else
+                $user->expert()->first()->create([
+                    'companies' => json_encode(explode(',', $request->companies)),
+                    'years_as_expert' => $request->years_as_expert,
+                    'work_at_company' => $request->work_at_company
+                ]);
+        }
 
         $user->update($request->all());
         //ToDo: Verification Email Required when Changing Email
@@ -269,13 +277,13 @@ class UserController extends Controller
 
         return $sortedNotifications;
     }
-       // return $not[7];
+    // return $not[7];
 
 
     public function show_old_notification(Request $request)
     {
 
-        $notifications= $request->user()->readNotifications;
+        $notifications = $request->user()->readNotifications;
         $sortedNotifications = $notifications->sortByDesc('created_at');
 
         return $sortedNotifications;
