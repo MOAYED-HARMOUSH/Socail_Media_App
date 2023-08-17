@@ -265,24 +265,52 @@ class UserController extends Controller
     }
     public function show_unread_notification(Request $request)
     {
-
+        $array = [];
         $notifications = $request->user()->unreadNotifications;
+        $sortedNotifications = $notifications->sortByDesc('created_at');
 
-        foreach ($notifications as $notification) {
+        foreach ( $sortedNotifications as $notification) {
             $notification->read_at = Carbon::now();
             $notification->save();
+            $old_datetime = Carbon::parse($notification->created_at)->format('Y-m-d H:i');
+            $day_name = date('l', strtotime($notification->created_at));
+
+            $now = Carbon::now();
+
+
+            if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 48) {
+                $diff = 'yestarday at : ' . Carbon::parse($notification->created_at)->format(' h:i A');
+            } else if ($now->diffInHours($old_datetime) > 24 && $now->diffInHours($old_datetime) < 168) {
+                $diff = $day_name . ' at :' .  Carbon::parse($notification->created_at)->format(' h:i A');
+            } else if ($now->diffInHours($old_datetime) > 24) {
+                $diff = Carbon::parse($old_datetime)->format('Y-m-d h:i A');
+            } else if ($now->diffInMinutes($old_datetime) < 60) {
+                $diff = $now->diffInMinutes($old_datetime) . ' minutes ago';
+            } else {
+                $diff = $now->diffInHours($old_datetime) . ' hours ago';
+            }
+
+            $data= $notification->data;
+            $string=strval($data[0]);
+
+        $array[] = [
+            'notification'=>  $string,
+            'notiication sent at'=>  $diff
+        ];
         }
 
-        $sortedNotifications = $notifications->sortByDesc('created_at');
+
         if($sortedNotifications != null)
         {return response()->json([
             'message'=>'succes',
-            'data'=>$sortedNotifications
-        ]);}
+            'data'=> $array
+
+        ]);
+        }
         else{
             return response()->json([
                 'message'=>'succes',
-                'data'=>[]
+                'data'=>[],
             ]);
         }
     }
@@ -290,7 +318,7 @@ class UserController extends Controller
 
     public function show_old_notification(Request $request)
     {
-
+        $array = [];
         $notifications = $request->user()->readNotifications;
         $sortedNotifications = $notifications->sortByDesc('created_at');
         foreach ($sortedNotifications as $key ) {
@@ -314,21 +342,24 @@ class UserController extends Controller
 
             $data= $key->data;
             $string=strval($data[0]);
-        $response= response()->json([
-            'message'=>'succes',
-            'data'=>  $string,
+
+        $array[] = [
+            'notification'=>  $string,
             'read at'=>  $diff
-        ]);
+        ];
         }
 
         if($sortedNotifications != null)
-        {return $response;
+        {return response()->json([
+            'message'=>'succes',
+            'data'=> $array
+
+        ]);
         }
-        else{
+        if($sortedNotifications != null){
             return response()->json([
                 'message'=>'succes',
                 'data'=>[],
-                'read_at'=>[]
             ]);
         }
     }
