@@ -908,8 +908,13 @@ class PostController extends Controller
         // }
         //  return $arr2;
         $storyies = Post::where('user_id', $id)->where('type', 'Story')->whereIn('created_at', $arr)->pluck('id')->toArray();
-        return $this->ExtraInfo_Post($storyies, $user, 'story');
-        return $arr;
+         $last=last($storyies);
+
+        $stor= $this->ExtraInfo_Post([$last], $user, 'story');
+        return response()->json([
+            'Message' => 'success',
+            'data' => ['posts' =>$stor]
+        ]);
     }
     public function agree_or_cancelagree_challenge(Request $request, $id)
     {
