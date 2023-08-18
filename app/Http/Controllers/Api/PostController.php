@@ -1079,7 +1079,13 @@ class PostController extends Controller
         if ($first_fifteen == null) {
             $count = counterpost::where('location', $locationt)->where('user_id', $user->id)->delete();
 
-            return 'end posts >> referssh';
+            return response()->json([
+            'Message' => 'end posts >> refresh',
+            'photo' => $me,
+
+            'info' => $community,
+
+            'data' => ['posts' => []],        ]);;
         }
         return response()->json([
             'Message' => 'success',
