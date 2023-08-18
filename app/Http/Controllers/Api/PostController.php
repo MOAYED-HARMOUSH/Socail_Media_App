@@ -229,8 +229,10 @@ class PostController extends Controller
         if ($first_fifteen == null) {
             $count = counterpost::where('user_id', $user->id)->where('location', 'homepage')->delete();
 
-            return 'end posts >> referssh';
-            //      //$l=0;
+ return response()->json([
+            'Message' => 'end posts >> refresh',
+            'data' => ['posts' => []],
+        ]);            //      //$l=0;
             //    return $this->gethomeposts($request );
         }
         return response()->json([
@@ -1072,7 +1074,13 @@ class PostController extends Controller
         if ($first_fifteen == null) {
             $count = counterpost::where('location', $locationt)->where('user_id', $user->id)->delete();
 
-            return 'end posts >> referssh';
+            return response()->json([
+            'Message' => 'end posts >> refresh',
+            'photo' => $me,
+
+            'info' => $community,
+
+            'data' => ['posts' => []],        ]);;
         }
         return response()->json([
             'Message' => 'success',
