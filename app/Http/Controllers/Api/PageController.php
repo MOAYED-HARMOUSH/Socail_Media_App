@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Post;
 use App\Models\counterpost;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Support\Str;
 
 class PageController extends Controller
 {
@@ -27,7 +29,6 @@ class PageController extends Controller
             $page->getFirstMedia('cover_image');
             $page->getFirstMedia('main_image');
         }
-
         return response()->json([
             'Message' => 'success',
             'Pages' => $my_owned_pages,
@@ -52,12 +53,13 @@ class PageController extends Controller
         }
 
         if ($request->hasFile('cover_image')) {
-            $page->addMediaFromRequest('cover_image')->toMediaCollection('cover_image');
+           $image= $page->addMediaFromRequest('cover_image')->toMediaCollection('cover_image');
         }
 
         return response()->json([
             'Message' => 'success',
-            'page' => $page
+            'page' => $page,
+            'image'=>$image->getUrl()
         ]);
     }
 
@@ -66,6 +68,7 @@ class PageController extends Controller
         // TODO: Get Posts From Page
         $my_own_page = $request->user()->pages()->find($request->id);
         if ($my_own_page != null)
+
             return response()->json([
                 'Message' => 'success',
                 'Page' => $my_own_page,
@@ -142,8 +145,12 @@ class PageController extends Controller
         $v =   counterpost::where('location', 'page')->where('user_id', $user->id)->value('counter_post');
 
 
-        $profile =   User::where('id', $id)->first();
-
+        $page =   Page::where('id', $id)->first();
+        $me = collect(Media::where('collection_name', 'cover_image')->where('model_id', $id)->get())->map(function ($media) {
+            $fullPath = str_replace('\\', '/', $media->getUrl());
+            $publicPath = Str::after($fullPath, 'http://127.0.0.1:8000/');
+            return $publicPath;
+        })->all();
 
         $posts_ids = Post::where('location_type', 'App\Models\Page')->where('location_id', $id)->pluck('id');
 
@@ -170,11 +177,18 @@ class PageController extends Controller
         if ($first_fifteen == null) {
             $count = counterpost::where('location', 'page')->where('user_id', $user->id)->delete();
 
-            return 'end posts >> referssh';
+            return  response()->json([
+                'Message' => 'success',
+                'info' => $page,
+                'photo' => $me,
+                'data' => ['posts' => []],
+
+            ]);;
         }
         return response()->json([
             'Message' => 'success',
-
+            'info' => $page,
+            'photo' => $me,
             'data' => ['posts' => $first_fifteen],
 
         ]);
