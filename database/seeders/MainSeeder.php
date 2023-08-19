@@ -128,13 +128,11 @@ class MainSeeder extends Seeder
         $type = [
             'Road map',
             'Job Opportunities',
-            'Story',
             'Regular',
             'Question',
             'Advise',
             'CV',
             'Accepted Challenge',
-            'Challenge'
         ];
         $randomIndex5 = array_rand($type);
         $randomType = $type[$randomIndex5];

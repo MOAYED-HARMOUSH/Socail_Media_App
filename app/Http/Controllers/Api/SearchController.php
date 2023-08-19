@@ -9,19 +9,42 @@ use App\Models\Page;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class SearchController extends Controller
 {
     public function search(Request $request, PostController $postController)
     {
-        $this->addIfNotExist($request);
-
+       // $this->addIfNotExist($request);
+$array=[];
         $type = strtolower($request->type);
         switch ($type) {
             case 'user':
-                return User::where('first_name', 'like', '%' . $request->search . '%')
+                 $users= User::where('first_name', 'like', '%' . $request->search . '%')
                     ->orWhere('last_name', 'like', '%' . $request->search . '%')
                     ->get();
+                    if($users == null )
+                    {    return response()->json([
+                        'message'=>'no users ',
+                        'data'=>[]
+                    ]);
+                    }
+foreach ($users as $key ) {
+    $poster_photo = collect(Media::where('model_id', $key->id)->where('collection_name', 'avatars')->get())->map(function ($media) {
+        return $media->getUrl();
+    })->first();
+
+$array=[
+    'name'=>$key->first_name . ' '. $key->last_name,
+    'image'=>$poster_photo,
+];
+
+}
+return response()->json([
+    'message'=>'succes',
+    'data'=>$array
+]);
+
             case 'community':
                 return Community::where('name', 'like', '%' . $request->search . '%')
                     ->get();
