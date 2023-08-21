@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\FriendRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class FriendController extends Controller
 {
@@ -109,10 +110,33 @@ class FriendController extends Controller
         // foreach ($sent_friends as $value) {
         //     $value->setAppends(['period_sender']);
         // }
-
+$array=[];
         $friends = $received_friends->concat($sent_friends);
+        if($friends==null)
+            {
+                return response()->json([
+                    'message'=>'no friends',
+                    'data'=>[]
+                ]);
+            }
+        foreach ($friends as $key ) {
+            $poster_photo = collect(Media::where('model_id', $key->id)->where('collection_name', 'avatars')->get())->map(function ($media) {
+                return $media->getUrl();
+            })->first();
 
-        return $friends;
+
+        $array=[
+            'name'=>$key->first_name . ' '. $key->last_name,
+            'image'=>$poster_photo,
+
+
+        ];
+
+        }
+        return response()->json([
+            'message'=>'succes',
+            'data'=>$array
+        ]);
     }
 
     public function returnFriends(Request $request)
